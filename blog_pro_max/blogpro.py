@@ -572,7 +572,7 @@ A professional photo of ... , soft natural lighting, shallow depth of field --ar
 
 舉例說明內容（以「舉個例子來說，」或「就好比說，」開頭，100 字以內）
 
-- **建議插入位置：** 
+- **建議插入位置：**
 
 段落第 N 句之後
 ```
