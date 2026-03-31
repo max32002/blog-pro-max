@@ -14,7 +14,7 @@ def preprocess_markdown(text):
     # 修正 3：將 **Prompt:** 開頭的行轉為 code block 格式
     def wrap_prompt(m):
         prompt_text = m.group(1).strip()
-        return f"**Prompt:**\n```\n{prompt_text}\n```"
+        return f"**Prompt:**\n``` {prompt_text}\n```"
     text = re.sub(r'^\*\*Prompt:\*\*\s+(.+)$', wrap_prompt, text, flags=re.MULTILINE)
 
     return text
@@ -38,12 +38,42 @@ def convert_file(input_path, output_path):
     <title>Converted Markdown</title>
     <style>
         body {{ font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 1024px; margin: auto; }}
-        pre {{ background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }}
+        pre {{ position: relative; background: #e4e4e4; padding: 25px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; }}
         code {{ font-family: monospace; }}
+        .copy-btn {{
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 4px 8px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }}
+        .copy-btn:hover {{ opacity: 1; }}
     </style>
 </head>
 <body>
 {html_output}
+<script>
+    document.querySelectorAll('pre').forEach(pre => {{
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.innerText = 'Copy';
+        btn.addEventListener('click', () => {{
+            const code = pre.innerText.replace('Copy', '').trim();
+            navigator.clipboard.writeText(code).then(() => {{
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
+            }});
+        }});
+        pre.appendChild(btn);
+    }});
+</script>
 </body>
 </html>"""
 

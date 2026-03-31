@@ -37,9 +37,10 @@ else:
 DEV_ROOT = _PACKAGE_DIR.parent  # fallback for dev-mode resources
 
 SKILL_NAME = "blog-pro-max"
-VERSION = "1.0.33"
+VERSION = "1.0.34"
 VERSION_HISTORY = [
-    {"version": "1.0.33", "date": "2026-03-31", "changes": "Script Mode 補齊 6 個段落級專家（發散、問題、迷因、插話、插畫、唱反調），與 Skill Mode 輸出的 12 個區塊一致；移除已棄用的 Pygments 依賴（requirements.txt、pyproject.toml、Skill 安裝產生的 requirements）；刪除根目錄 scripts/ 與 templates/ 後確認三種模式（Package、Skill、Script）皆不受影響"},
+    {"version": "1.0.34", "date": "2026-04-01", "changes": "format md2html output"},
+    {"version": "1.0.33", "date": "2026-04-01", "changes": "Script Mode 補齊 6 個段落級專家（發散、問題、迷因、插話、插畫、唱反調），與 Skill Mode 輸出的 12 個區塊一致；移除已棄用的 Pygments 依賴（requirements.txt、pyproject.toml、Skill 安裝產生的 requirements）；刪除根目錄 scripts/ 與 templates/ 後確認三種模式（Package、Skill、Script）皆不受影響"},
     {"version": "1.0.32", "date": "2026-04-01", "changes": "output_md2html: **Prompt:** 開頭的行自動轉為 code block 格式"},
     {"version": "1.0.31", "date": "2026-04-01", "changes": "output_md2html: 移除 codehilite（避免 <pre> 輸出混亂），改用 fenced_code；max-width 改為 1024px；移除 Pygments 依賴"},
     {"version": "1.0.30", "date": "2026-04-01", "changes": "修正 CI 測試：移除不存在的 --list-templates CLI 旗標"},
@@ -412,11 +413,14 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
 此角色會分析文章內容與主題，產出 3 組適合 AI 繪圖工具的封面圖片提示詞：
 
 - **寫實攝影風**：適合專業、商務類文章
+
 - **插畫風**：適合生活、故事類文章
+
 - **極簡設計風**：適合科技、教學類文章
 
 每組提示詞包含：
 - **英文 Prompt**：可直接貼到 Midjourney、DALL-E、Stable Diffusion
+
 - **中文說明**：一句話描述圖片意境
 
 **輸出格式（必須嚴格遵守）：**
@@ -540,9 +544,11 @@ A professional photo of ... , soft natural lighting, shallow depth of field --ar
 
 ### ✍️ 內容改寫示範
 
-**原文：** 原始段落...
-**改寫：** 加入時事元素的新版本...
-**策略：** 說明為什麼這樣改更好...
+- **原文：** 原始段落...
+
+- **改寫：** 加入時事元素的新版本...
+
+- **策略：** 說明為什麼這樣改更好...
 ```
 
 ### 內部角色：插話專家（example-inserter）
@@ -562,11 +568,13 @@ A professional photo of ... , soft natural lighting, shallow depth of field --ar
 
 ### 段落：{{H2 子標題}}
 
-**建議插入的舉例：**
+- **建議插入的舉例：**
 
 舉例說明內容（以「舉個例子來說，」或「就好比說，」開頭，100 字以內）
 
-**建議插入位置：** 段落第 N 句之後
+- **建議插入位置：** 
+
+段落第 N 句之後
 ```
 
 （每個 H2 段落各輸出一組，格式相同）
@@ -579,7 +587,9 @@ A professional photo of ... , soft natural lighting, shallow depth of field --ar
 
 每組提示詞風格：
 - **寫實攝影風**：照片感，適合真實場景呈現
+
 - **插畫風**：溫暖手繪感，適合生活或故事類段落
+
 - **極簡圖示風**：乾淨的線條圖形，適合說明步驟或概念
 
 **輸出格式（必須嚴格遵守）：**
@@ -593,14 +603,31 @@ A professional photo of ... , soft natural lighting, shallow depth of field --ar
 
 ### 段落：{{H2 子標題}}
 
-**1. 寫實攝影風**
-Prompt: A realistic photo of ..., natural lighting, --ar 16:9
+- **1. 寫實攝影風**
 
-**2. 插畫風**
-Prompt: A warm hand-drawn illustration of ..., soft colors, flat style --ar 16:9
+**Prompt:**
 
-**3. 極簡圖示風**
-Prompt: A minimal icon illustration of ..., clean lines, white background --ar 1:1
+```
+A professional photo of ... , soft natural lighting, --ar 16:9
+```
+
+- **2. 插畫風**
+
+**Prompt:**
+
+```
+A warm hand-drawn illustration of ..., soft colors, flat style --ar 16:9
+```
+
+
+- **3. 極簡圖示風**
+
+**Prompt:**
+
+```
+A minimal icon illustration of ..., clean lines, white background --ar 1:1
+```
+
 ```
 
 （每個 H2 段落各輸出一組，格式相同）
@@ -622,11 +649,11 @@ Prompt: A minimal icon illustration of ..., clean lines, white background --ar 1
 
 ### 段落：{{H2 子標題}}
 
-**反駁觀點：** 一句話提出反面立場
+- **反駁觀點：** 一句話提出反面立場
 
-**理由：** 簡短說明為什麼這個論點可能不成立（2-3 句話）
+- **理由：** 簡短說明為什麼這個論點可能不成立（2-3 句話）
 
-**建議回應：** 作者可以如何在文章中預先化解這個質疑（1-2 句話）
+- **建議回應：** 作者可以如何在文章中預先化解這個質疑（1-2 句話）
 ```
 
 （每個 H2 段落各輸出一組，格式相同）
@@ -648,13 +675,13 @@ Prompt: A minimal icon illustration of ..., clean lines, white background --ar 1
 
 ### 段落：{{H2 子標題}}
 
-**延伸方向 1：** 與 {{相關領域/話題}} 的連結 — 一句話說明如何延伸
+- **延伸方向 1：** 與 {{相關領域/話題}} 的連結 — 一句話說明如何延伸
 
-**延伸方向 2：** 跨領域聯想 — 例如把這個概念套用在 {{完全不同的情境}} 上
+- **延伸方向 2：** 跨領域聯想 — 例如把這個概念套用在 {{完全不同的情境}} 上
 
-**延伸方向 3：** 更深一層 — 如果追問「為什麼」或「然後呢」，可以發展到哪裡
+- **延伸方向 3：** 更深一層 — 如果追問「為什麼」或「然後呢」，可以發展到哪裡
 
-**潛在後續文章題目：** 根據上述延伸，建議 1-2 個可以獨立成篇的相關主題
+- **潛在後續文章題目：** 根據上述延伸，建議 1-2 個可以獨立成篇的相關主題
 ```
 
 （每個 H2 段落各輸出一組，格式相同）
@@ -702,11 +729,11 @@ Prompt: A minimal icon illustration of ..., clean lines, white background --ar 1
 
 ### 段落：{{H2 子標題}}
 
-**迷因關鍵字：** 關鍵字1、關鍵字2、關鍵字3
+- **迷因關鍵字：** 關鍵字1、關鍵字2、關鍵字3
 
-**梗圖場景：** 一句話描述可以做成梗圖的場景（例：「當你說要開始XX，結果發現YY」）
+- **梗圖場景：** 一句話描述可以做成梗圖的場景（例：「當你說要開始XX，結果發現YY」）
 
-**輕鬆開場句：** 用幽默方式重新描述這個段落的核心概念（一句話，可直接用在文章或社群貼文）
+- **輕鬆開場句：** 用幽默方式重新描述這個段落的核心概念（一句話，可直接用在文章或社群貼文）
 ```
 
 （每個 H2 段落各輸出一組，格式相同）
