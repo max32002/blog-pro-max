@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blog-pro-max"
+version = "1.0.33"
+description = "自動化 SEO 內容創作與部落格文章生成工具"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "openai>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "Markdown>=3.5.0",
+]
+
+[project.optional-dependencies]
+web = [
+    "ddgs>=0.1",
+]
+
+[project.scripts]
+blogpro = "blog_pro_max.blogpro:main"
+
+[project.urls]
+Homepage = "https://github.com/max32002/blog-pro-max"
+Repository = "https://github.com/max32002/blog-pro-max"
+Bug-Tracker = "https://github.com/max32002/blog-pro-max/issues"
+
+[tool.setuptools.packages.find]
+include = ["blog_pro_max*"]
+
+[tool.setuptools.package-data]
+blog_pro_max = [
+    "templates/*.md",
+    "writing-style.md",
+    "copilot.json",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

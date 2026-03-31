@@ -1,0 +1,7 @@
+openai>=2.0.0
+python-dotenv>=1.0.0
+Markdown>=3.5.0
+
+# Optional: 啟用時事趨勢分析的 Web Search 功能
+# pip install ddgs  或  pip install "blog-pro-max[web]"
+# ddgs>=0.1

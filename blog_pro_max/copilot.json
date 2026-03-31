@@ -1,0 +1,7 @@
+{
+  "name": "blog-pro-max",
+  "description": "自動化 SEO 內容創作與部落格文章生成工具",
+  "runtime": "python3",
+  "entrypoint": "scripts/content_research.py",
+  "instructions": "templates/blog-skill-content.md"
+}
