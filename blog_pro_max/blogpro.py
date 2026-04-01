@@ -37,9 +37,9 @@ else:
 DEV_ROOT = _PACKAGE_DIR.parent  # fallback for dev-mode resources
 
 SKILL_NAME = "blog-pro-max"
-VERSION = "1.0.37"
+VERSION = "1.0.38"
 VERSION_HISTORY = [
-    {"version": "1.0.37", "date": "2026-04-01", "changes": "優化存檔流程：12個區塊輸出完畢後自動儲存當前風格，再詢問是否另存其他3種"},
+    {"version": "1.0.38", "date": "2026-04-01", "changes": "優化存檔流程：12個區塊輸出完畢後自動儲存當前風格，再詢問是否另存其他3種"},
     {"version": "1.0.36", "date": "2026-04-01", "changes": "Max風格微調"},
     {"version": "1.0.35", "date": "2026-04-01", "changes": "增加 快速生成模式"},
     {"version": "1.0.34", "date": "2026-04-01", "changes": "format md2html output"},

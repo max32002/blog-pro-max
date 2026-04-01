@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "blog-pro-max"
-version = "1.0.36"
+version = "1.0.38"
 description = "自動化 SEO 內容創作與部落格文章生成工具"
 readme = "README.md"
 license = {text = "MIT"}
