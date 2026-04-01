@@ -21,7 +21,6 @@ try:
     from blog_pro_max._resources import RESOURCE_ROOT
     from blog_pro_max.blog_generator import (
         build_prompt,
-        generate_article,
         generate_cover_prompts,
         generate_devil_advocate,
         generate_divergent,
@@ -43,7 +42,6 @@ except ImportError:
     sys.path.insert(0, str(RESOURCE_ROOT / "scripts"))
     from blog_generator import (
         build_prompt,
-        generate_article,
         generate_cover_prompts,
         generate_devil_advocate,
         generate_divergent,
@@ -59,8 +57,8 @@ except ImportError:
     )
     from core import TEMPLATES, ensure_environment, list_templates, scan_project_status
     from output_md2html import convert_file as md2html
-    from style_checker import check_content, check_file
     from quick_stream import QuickStreamingGenerator
+    from style_checker import check_content, check_file
 
 
 def slugify(text: str) -> str:
@@ -92,8 +90,6 @@ def resolve_keyword(args) -> str:
 
 
 def main():
-    # 新增：初始化 ConfigLoader
-    config = ConfigLoader().load()
     available_templates = ", ".join(TEMPLATES.keys())
 
     parser = argparse.ArgumentParser(
@@ -236,11 +232,6 @@ def main():
     output_file.write_text(article, encoding="utf-8")
     print(f"✅ 文章已儲存至：{output_path}")
     print()
-    # 儲存會話資訊
-    session = ArticleSession(keyword=keyword, template=template, audience=args.audience)
-    session.article_content = article
-    session.save(output_file.parent)
-    print(f"💾 會話已儲存：{output_file.parent}/.session_{{session.session_id}}.json")
 
 
     # Style check

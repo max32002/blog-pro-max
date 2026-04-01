@@ -4,15 +4,16 @@ quick_stream.py - 簡化的流式生成包裝
 提供簡單的流式生成接口，適合 quick_generate.py 使用。
 """
 
-from typing import Iterator, Optional
-from openai import OpenAI, AzureOpenAI
 import os
+from typing import Iterator
+
+from openai import AzureOpenAI, OpenAI
 
 
 class QuickStreamingGenerator:
     """
     簡化的流式生成器，自動配置和錯誤處理。
-    
+
     使用方式：
         generator = QuickStreamingGenerator(model='gemini-pro')
         for chunk in generator.generate(prompt):
@@ -56,10 +57,10 @@ class QuickStreamingGenerator:
     def generate(self, prompt: str) -> Iterator[str]:
         """
         流式生成文章。
-        
+
         Args:
             prompt: 生成提示詞
-            
+
         Yields:
             生成的文本片段
         """
