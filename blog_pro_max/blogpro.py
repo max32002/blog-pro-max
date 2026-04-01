@@ -37,8 +37,9 @@ else:
 DEV_ROOT = _PACKAGE_DIR.parent  # fallback for dev-mode resources
 
 SKILL_NAME = "blog-pro-max"
-VERSION = "1.0.36"
+VERSION = "1.0.37"
 VERSION_HISTORY = [
+    {"version": "1.0.37", "date": "2026-04-01", "changes": "優化存檔流程：12個區塊輸出完畢後自動儲存當前風格，再詢問是否另存其他3種"},
     {"version": "1.0.36", "date": "2026-04-01", "changes": "Max風格微調"},
     {"version": "1.0.35", "date": "2026-04-01", "changes": "增加 快速生成模式"},
     {"version": "1.0.34", "date": "2026-04-01", "changes": "format md2html output"},
@@ -361,21 +362,32 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
    - 第 N 項：[區塊名稱]
    ```
 
-6. 所有報告輸出完畢後，**必須輸出以下完成報告**：
+6. 所有報告輸出完畢後，**立即自動儲存當前風格**（不需詢問），並輸出以下完成報告：
 
    ```
    ✅ 輸出完成：12/12 個區塊
-   📁 準備儲存至：output/關鍵字.md + .html
+   💾 已儲存：output/關鍵字.md + .html
    ```
 
-   然後詢問使用者以下問題：
+   - 儲存 `output/關鍵字.md`（路徑相對於使用者工作目錄）
+   - **`.md` 檔案必須包含本次對話中輸出的完整內容**（文章本文 + 全部 12 個專家區塊），不得只存文章本文
+   - 同時儲存 `output/關鍵字.html`：
+     - 若 AI 具備執行腳本能力，執行 `python {script_prefix}scripts/output_md2html.py output/關鍵字.md output/關鍵字.html`
+     - 若 AI 不具備執行腳本能力，直接將 .md 內容轉換為 HTML 並寫入 `output/關鍵字.html`
 
-   > 「文章已依據參考資料生成完畢。請問要如何儲存？
-   > 1. 只存這個風格（output/關鍵字.md + .html）
-   > 2. 生成所有風格，各存一份（SEO、Max、FB、LINE，共 4 組 .md + .html）」
+   儲存完成後，詢問使用者以下問題：
 
-7. 依使用者選擇儲存對應檔案到工作目錄的 `output/` 資料夾。
-   **儲存的 `.md` 必須包含本次對話中所有已輸出的內容**（文章本文 + 全部 12 個專家區塊），不得只存文章本文。
+   > 「是否要另外生成其他 3 種風格？（SEO、Max、FB、LINE 各一份 .md + .html）
+   > 輸入 y 繼續，或直接按 Enter 跳過。」
+
+7. 若使用者輸入 `y`：
+   - 依序以其他 3 個模板重新生成文章，各自附加標題建議與封面提示詞，儲存為：
+     - `output/關鍵字-seo.md` + `output/關鍵字-seo.html`（blog-skill-content）
+     - `output/關鍵字-max.md` + `output/關鍵字-max.html`（max-personal-style）
+     - `output/關鍵字-fb.md` + `output/關鍵字-fb.html`（fb-post-style）
+     - `output/關鍵字-line.md` + `output/關鍵字-line.html`（line-message-style）
+   - 已在第 6 步儲存的風格可跳過，避免重複
+   - 所有路徑均相對於使用者工作目錄
 
 ### 內部角色：部落格標題專家（blog-title-writer）
 
@@ -824,20 +836,13 @@ A minimal icon illustration of ..., clean lines, white background --ar 1:1
    - 第 N 項：[區塊名稱]
    ```
 
-5. 全部 12 個區塊輸出完畢後，**必須輸出以下完成報告**：
+5. 全部 12 個區塊輸出完畢後，**立即自動儲存當前風格**（不需詢問），並輸出以下完成報告：
 
    ```
    ✅ 輸出完成：12/12 個區塊
-   📁 準備儲存至：output/關鍵字.md + .html
+   💾 已儲存：output/關鍵字.md + .html
    ```
 
-   然後詢問使用者以下問題：
-
-   > 「文章已生成完畢。請問要如何儲存？
-   > 1. 只存這個風格（output/關鍵字.md + .html）
-   > 2. 生成所有風格，各存一份（SEO、Max、FB、LINE，共 4 組 .md + .html）」
-
-6. 若選擇「1. 只存這個風格」：
    - 儲存 `output/關鍵字.md`（路徑相對於使用者工作目錄，不是 Skill 目錄）
    - **`.md` 檔案必須包含本次對話中輸出的完整內容**，依序為：
      1. 文章本文
@@ -857,14 +862,20 @@ A minimal icon illustration of ..., clean lines, white background --ar 1:1
      - 若 AI 具備執行腳本能力，執行 `python {script_prefix}scripts/output_md2html.py output/關鍵字.md output/關鍵字.html`
      - 若 AI 不具備執行腳本能力，直接將 .md 內容轉換為 HTML（以 `<h1>`, `<h2>`, `<p>`, `<ul>` 等基本 HTML 標籤組成）並寫入 `output/關鍵字.html`
 
-7. 若選擇「2. 生成所有風格」：
-   - 依序以 4 個模板重新生成文章，各自附加標題建議與封面提示詞，儲存為：
+   儲存完成後，詢問使用者以下問題：
+
+   > 「是否要另外生成其他 3 種風格？（SEO、Max、FB、LINE 各一份 .md + .html）
+   > 輸入 y 繼續，或直接按 Enter 跳過。」
+
+6. 若使用者輸入 `y`：
+   - 依序以其他 3 個模板重新生成文章，各自附加標題建議與封面提示詞，儲存為：
      - `output/關鍵字-seo.md` + `output/關鍵字-seo.html`（blog-skill-content）
      - `output/關鍵字-max.md` + `output/關鍵字-max.html`（max-personal-style）
      - `output/關鍵字-fb.md` + `output/關鍵字-fb.html`（fb-post-style）
      - `output/關鍵字-line.md` + `output/關鍵字-line.html`（line-message-style）
+   - 已在第 5 步儲存的風格可跳過，避免重複
    - 所有路徑均相對於使用者工作目錄
-   - .html 的產生方式同第 6 步（腳本優先，不能執行腳本時直接轉換）
+   - .html 的產生方式同第 5 步（腳本優先，不能執行腳本時直接轉換）
 
 ### Script Mode（直接執行）
 
