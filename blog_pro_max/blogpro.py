@@ -37,8 +37,9 @@ else:
 DEV_ROOT = _PACKAGE_DIR.parent  # fallback for dev-mode resources
 
 SKILL_NAME = "blog-pro-max"
-VERSION = "1.0.35"
+VERSION = "1.0.36"
 VERSION_HISTORY = [
+    {"version": "1.0.36", "date": "2026-04-01", "changes": "Max風格微調"},
     {"version": "1.0.35", "date": "2026-04-01", "changes": "增加 快速生成模式"},
     {"version": "1.0.34", "date": "2026-04-01", "changes": "format md2html output"},
     {"version": "1.0.33", "date": "2026-04-01", "changes": "Script Mode 補齊 6 個段落級專家（發散、問題、迷因、插話、插畫、唱反調），與 Skill Mode 輸出的 12 個區塊一致；移除已棄用的 Pygments 依賴（requirements.txt、pyproject.toml、Skill 安裝產生的 requirements）；刪除根目錄 scripts/ 與 templates/ 後確認三種模式（Package、Skill、Script）皆不受影響"},

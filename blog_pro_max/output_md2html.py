@@ -14,8 +14,10 @@ def preprocess_markdown(text):
     # 修正 3：將 **Prompt:** 開頭的行轉為 code block 格式
     def wrap_prompt(m):
         prompt_text = m.group(1).strip()
-        return f"**Prompt:**\n``` {prompt_text}\n```"
+        return f"\n```\n{prompt_text}\n```\n"
     text = re.sub(r'^\*\*Prompt:\*\*\s+(.+)$', wrap_prompt, text, flags=re.MULTILINE)
+    # for debug.
+    #print(text)
 
     return text
 
