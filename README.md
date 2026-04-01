@@ -5,6 +5,8 @@
 ## 功能亮點
 
 - **AI 驅動寫作**：根據關鍵字自動進行內容研究並生成 SEO 最佳化的部落格文章。
+- **流式 AI 生成**：透過 `quick_generate.py` 支援實時文字輸出，無需等待完整內容生成即可開始閱讀。
+- **多 LLM 支援**：Script Mode 支援 OpenAI GPT 與 GitHub Models；快速生成模式額外支援 Google Gemini 與 Azure OpenAI。
 - **品牌風格一致性**：自動套用品牌寫作風格規範（`writing-style.md`）。
 - **內建風格檢查器**：自動驗證產出內容是否符合排版與語氣規範。
 - **多樣化模板**：支援多種寫作風格（SEO 專業 / Max 個人風格 / FB 貼文 / LINE 訊息）。
@@ -20,6 +22,7 @@
 - **迷因專家**：針對每個段落提出迷因、梗圖與幽默元素關鍵字，讓嚴肅內容更輕鬆有趣、容易分享。
 - **AI Skill 注入**：一鍵將 Prompt 與工具鏈注入到 Claude Code, Cursor, GitHub Copilot 等 18 種平台。
 - **自動格式轉換**：內建 Markdown 轉 HTML 引擎，支援代碼高亮與 SEO 優化排版。
+- **會話管理**：透過 `quick_generate.py` 自動保存生成記錄與元數據，支援隨時恢復編輯。
 
 ---
 
@@ -127,6 +130,7 @@ blogpro init --ai all --global
 > | Skill Mode | ❌ 不需要 | AI Assistant 用自己的 LLM 生成 |
 > | Workflow Mode | ❌ 不需要 | 同上 |
 > | Script Mode | ✅ 需要 | Python 腳本直接呼叫 OpenAI / GitHub Models |
+> | 快速生成模式 | ✅ 需要 | 支援 Gemini / OpenAI / Azure OpenAI |
 
 ### Skill Mode（自動啟動）
 
@@ -266,6 +270,30 @@ python -m blog_pro_max.content_research --keyword "Python 基礎教學" --dry-ru
 python -m blog_pro_max.content_research --keyword "Python" --check-only output/my-article.md
 ```
 
+### 快速生成模式（個人版）
+
+使用 `quick_generate.py` 入口點，適合追求效率的單人使用場景，支援流式輸出與會話管理。
+
+```bash
+# 快速生成
+python quick_generate.py "寫一篇 AI 的文章"
+
+# 自訂模型與參數
+python quick_generate.py "文章主題" --model gpt-4 --temperature 0.9
+
+# 恢復上次的會話
+python quick_generate.py --resume last
+```
+
+`quick_generate.py` 支援的 LLM 提供者：
+
+| 環境變數 | 提供者 | 說明 |
+|----------|--------|------|
+| `GOOGLE_API_KEY` | Google Gemini | 透過 OpenAI 相容介面呼叫 |
+| `OPENAI_API_KEY` | OpenAI GPT | 直接呼叫 OpenAI API |
+| `AZURE_OPENAI_API_KEY` | Azure OpenAI | 需額外設定 `AZURE_ENDPOINT` |
+| `GITHUB_TOKEN` | GitHub Models | 免費，不需 OpenAI 帳號 |
+
 ---
 
 ## CLI 指令參考
@@ -349,9 +377,81 @@ python -m blog_pro_max.content_research --keyword "Python" --check-only output/m
 
 ---
 
-## 授權
-本專案採用 [MIT License](LICENSE) 授權。
-歡迎提交 Issue 或 Pull Request 參與貢獻！
+## 環境變數配置
+
+### Script Mode（`content_research.py` / `blog_generator.py`）
+
+| 變數名 | 說明 | 預設值 |
+|--------|------|--------|
+| `GITHUB_TOKEN` | GitHub PAT（免費，推薦） | — |
+| `OPENAI_API_KEY` | OpenAI API Key | — |
+
+### 快速生成模式（`quick_generate.py`）
+
+| 變數名 | 說明 | 預設值 |
+|--------|------|--------|
+| `LLM_MODEL` | 使用的模型名稱 | `gemini-pro` |
+| `LLM_TEMP` | 生成溫度 (0-1) | `0.7` |
+| `OUTPUT_DIR` | 文章輸出目錄 | `./articles` |
+| `SESSIONS_DIR` | 會話保存目錄 | `./.sessions` |
+| `GOOGLE_API_KEY` | Google Gemini API Key | — |
+| `OPENAI_API_KEY` | OpenAI API Key | — |
+| `AZURE_OPENAI_API_KEY` | Azure OpenAI API Key | — |
+| `AZURE_ENDPOINT` | Azure OpenAI Endpoint | — |
+
+---
+
+## 專案結構
+
+```
+blog-pro-max/
+├── quick_generate.py          # 個人快速入口（流式生成 + 會話管理）
+├── writing-style.md           # 品牌寫作風格規範
+├── pyproject.toml             # 套件配置與依賴
+├── blog_pro_max/              # 核心邏輯包
+│   ├── __init__.py
+│   ├── blogpro.py             # CLI 管理工具（init / uninstall / versions / update）
+│   ├── blog_generator.py      # 文章生成引擎（含 12 位專家）
+│   ├── content_research.py    # Script Mode 主程式進入點
+│   ├── core.py                # 模板管理與共用函式
+│   ├── style_checker.py       # 風格檢核器
+│   ├── output_md2html.py      # Markdown 轉 HTML 引擎
+│   ├── quick_stream.py        # 流式生成包裝（多 LLM 支援）
+│   ├── _resources.py          # 資源路徑管理
+│   ├── templates/             # 寫作風格模板
+│   │   ├── blog-skill-content.md
+│   │   ├── max-personal-style.md
+│   │   ├── fb-post-style.md
+│   │   └── line-message-style.md
+│   └── writing-style.md       # 套件內建風格規範副本
+├── articles/                  # 產出的文章目錄
+├── .sessions/                 # 會話歷史記錄
+└── docs/                      # 延伸文件
+    ├── architecture.md
+    ├── scripts-reference.md
+    ├── faq.md
+    ├── streaming-llm-guide.md
+    ├── expert-parallel-guide.md
+    └── blog-pro-max-new-features.md
+```
+
+---
+
+## 常見問題 (FAQ)
+
+- **需要 API 金鑰嗎？**
+  若使用 Skill Mode / Workflow Mode（透過 AI 助理對話），不需要金鑰；若使用 Script Mode 或 `quick_generate.py`，需要設定對應的 API 金鑰。
+
+- **支援哪些語言？**
+  預設為繁體中文，但支援所有 LLM 涵蓋的語言。可透過 `--language` 參數指定。
+
+- **如何更新到最新版本？**
+  執行 `pip install --upgrade blog-pro-max` 後，運行 `blogpro update` 即可刷新所有平台的 Skill 檔案。
+
+- **時事趨勢分析需要額外安裝嗎？**
+  是的，需執行 `pip install "blog-pro-max[web]"` 或 `pip install ddgs` 安裝 DuckDuckGo 搜尋套件。
+
+更多 FAQ 請參閱 [docs/faq.md](docs/faq.md)。
 
 ---
 
@@ -390,12 +490,19 @@ blogpro versions
 
 ```
 📦 blog-pro-max
-  目前版本：v1.0.20
+  目前版本：v1.0.34
 
 🔌 本地已安裝平台：
-  ✅ claude    v1.0.20  .claude/skills/blog-pro-max/
-  ✅ copilot   v1.0.20  .github/skills/blog-pro-max/
+  ✅ claude    v1.0.34  .claude/skills/blog-pro-max/
+  ✅ copilot   v1.0.34  .github/skills/blog-pro-max/
 ```
+
+---
+
+## 授權與貢獻
+
+本專案採用 [MIT License](LICENSE) 授權。
+歡迎提交 Issue 或 Pull Request 參與貢獻！
 
 ---
 
@@ -404,5 +511,7 @@ blogpro versions
 | 文件 | 說明 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | **系統架構說明**：模組職責分工、目錄結構、完整生成 Pipeline 流程圖、函式參考表，適合想深入了解工具內部運作的開發者閱讀 |
-| [docs/scripts-reference.md](docs/scripts-reference.md) | **腳本完整參考手冊**：6 個腳本的所有函式簽名、參數說明、回傳格式範例、獨立使用情境與範例指令，以及 Skill Mode 斜線命令速查表 |
+| [docs/scripts-reference.md](docs/scripts-reference.md) | **腳本完整參考手冊**：所有函式簽名、參數說明、回傳格式範例、獨立使用情境與範例指令，以及 Skill Mode 斜線命令速查表 |
 | [docs/faq.md](docs/faq.md) | **常見問題 FAQ**：25+ 個 Q&A，涵蓋安裝設定、API 金鑰選擇、Skill 注入、各專家功能說明、輸出格式、疑難排解等 |
+| [docs/streaming-llm-guide.md](docs/streaming-llm-guide.md) | **流式生成指南**：流式 LLM 呼叫的架構與使用方式 |
+| [docs/expert-parallel-guide.md](docs/expert-parallel-guide.md) | **專家並行指南**：如何平行執行多位專家以加速生成流程 |

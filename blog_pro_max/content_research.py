@@ -60,6 +60,7 @@ except ImportError:
     from core import TEMPLATES, ensure_environment, list_templates, scan_project_status
     from output_md2html import convert_file as md2html
     from style_checker import check_content, check_file
+    from quick_stream import QuickStreamingGenerator
 
 
 def slugify(text: str) -> str:
@@ -91,6 +92,8 @@ def resolve_keyword(args) -> str:
 
 
 def main():
+    # 新增：初始化 ConfigLoader
+    config = ConfigLoader().load()
     available_templates = ", ".join(TEMPLATES.keys())
 
     parser = argparse.ArgumentParser(
@@ -207,14 +210,16 @@ def main():
     # Generate article
     print("⏳ 正在生成文章...")
     try:
-        article = generate_article(
-            keyword=keyword,
-            audience=args.audience,
-            word_count=args.word_count,
-            language=args.language,
+        streamer = QuickStreamingGenerator()
+        article_chunks = []
+        for chunk in streamer.generate(
+            prompt=f"以 {keyword} 為核心寫一篇 {args.word_count} 字的文章給 {args.audience}",
             model=args.model,
-            template=template,
-        )
+            temperature=0.7
+        ):
+            print(chunk, end="", flush=True)
+            article_chunks.append(chunk)
+        article = "".join(article_chunks)
     except EnvironmentError as e:
         print(f"❌ {e}")
         sys.exit(1)
@@ -225,12 +230,18 @@ def main():
         print(f"❌ 生成失敗：{e}")
         sys.exit(1)
 
-    # Save output
+    # 新增：保存 Session 狀態
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(article, encoding="utf-8")
     print(f"✅ 文章已儲存至：{output_path}")
     print()
+    # 儲存會話資訊
+    session = ArticleSession(keyword=keyword, template=template, audience=args.audience)
+    session.article_content = article
+    session.save(output_file.parent)
+    print(f"💾 會話已儲存：{output_file.parent}/.session_{{session.session_id}}.json")
+
 
     # Style check
     print("🔍 正在執行風格檢查...")
@@ -396,22 +407,35 @@ def main():
         ("🔴", "唱反調專家", generate_devil_advocate),
     ]
 
-    for emoji, name, fn in paragraph_experts:
-        print()
-        print(f"{emoji} 正在執行{name}分析...")
+    # 並行化專家分析
+    import concurrent.futures
+    def run_expert(fn, article, keyword, audience, model):
         try:
             block = fn(
                 article_content=article,
                 keyword=keyword,
-                audience=args.audience,
-                model=args.model,
+                audience=audience,
+                model=model,
             )
+            return block, None
+        except Exception as e:
+            return None, e
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+        futures = [
+            executor.submit(run_expert, fn, article, keyword, args.audience, args.model)
+            for _, _, fn in paragraph_experts
+        ]
+        for (emoji, name, _), future in zip(paragraph_experts, futures):
+            print()
+            print(f"{emoji} 正在執行{name}分析...")
+            block, err = future.result()
             if block:
                 current_content = output_file.read_text(encoding="utf-8")
                 output_file.write_text(current_content + block, encoding="utf-8")
                 print(f"   ✅ {name}建議已附加到 {output_path}")
-        except Exception as e:
-            print(f"   ⚠️  {name}分析失敗（不影響文章）：{e}")
+            elif err:
+                print(f"   ⚠️  {name}分析失敗（不影響文章）：{err}")
 
     # Convert to HTML
     html_path = str(Path(output_path).with_suffix(".html"))
