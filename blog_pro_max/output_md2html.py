@@ -4,6 +4,7 @@ from pathlib import Path
 
 import markdown
 
+
 def preprocess_markdown(text):
     # 修正 1：確保每個 - 開頭後方至少有一個空格
     text = re.sub(r'^-([^\s])', r'- \1', text, flags=re.MULTILINE)
