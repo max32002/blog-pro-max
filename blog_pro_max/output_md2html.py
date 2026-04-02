@@ -4,7 +4,6 @@ from pathlib import Path
 
 import markdown
 
-
 def preprocess_markdown(text):
     # 修正 1：確保每個 - 開頭後方至少有一個空格
     text = re.sub(r'^-([^\s])', r'- \1', text, flags=re.MULTILINE)
@@ -16,7 +15,19 @@ def preprocess_markdown(text):
     def wrap_prompt(m):
         prompt_text = m.group(1).strip()
         return f"\n```\n{prompt_text}\n```\n"
-    text = re.sub(r'^\*\*Prompt:\*\*\s+(.+)$', wrap_prompt, text, flags=re.MULTILINE)
+    pattern = r'^\*\*Prompt:\*\*\s+(.+)$'
+    text = re.sub(pattern, wrap_prompt, text, flags=re.MULTILINE)
+
+    # 修正 4：將 - **插畫風 Prompt**： 開頭的行轉為 code block 格式
+    def wrap_prompt2(m):
+        # m.group(1) 是標題（如：插畫風）
+        # m.group(2) 是具體的 Prompt 內容
+        prompt_title = m.group(1).strip()
+        prompt_content = m.group(2).strip()
+        return f"- **{prompt_title} Prompt**\n```\n{prompt_content}\n```\n"
+
+    pattern = r'^- \*\*(.+) Prompt\*\*：(.+)$'
+    text = re.sub(pattern, wrap_prompt2, text, flags=re.MULTILINE)
     # for debug.
     #print(text)
 
@@ -139,7 +150,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='強化的 Markdown 轉 HTML 工具')
     parser.add_argument('input', help='輸入的 .md 檔案路徑')
     parser.add_argument('output', help='輸出的 .html 檔案路徑')
-    parser.add_argument('--analysis', default=None, help='分析 .md 檔案路徑（選填）；提供時與文章合併輸出')
+    parser.add_argument('--analysis', '-a', default=None, help='分析 .md 檔案路徑（選填）；提供時與文章合併輸出')
     args = parser.parse_args()
 
     if args.analysis:
