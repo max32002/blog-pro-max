@@ -136,6 +136,20 @@ blogpro init --ai all --global
 
 **支援平台：** Claude Code, Cursor, Windsurf, Antigravity, Codex CLI, Continue, Gemini CLI, OpenCode, Qoder, CodeBuddy, Droid (Factory), KiloCode, Warp, Augment
 
+> 💡 **CLI 用戶建議：啟用 YOLO Mode**
+> 
+> 使用終端機 CLI（如 Gemini CLI、Codex CLI）時，AI 在執行每個步驟前都可能停下來請求確認，這會打斷寫作流程。建議啟動時加上 **YOLO（自動確認）** 參數，讓 AI 不中斷地完成整個生成流程：
+> 
+> ```bash
+> # Gemini CLI：加上 -y 進入 YOLO mode
+> gemini -y
+> 
+> # Codex CLI：加上 --full-auto 進入自動模式
+> codex --full-auto
+> ```
+> 
+> 啟用後，AI 將自動完成所有步驟（搜尋、生成、存檔），無需逐步確認。
+
 安裝 Skill 後，AI Assistant 會**自動讀取** SKILL.md，您只需用自然語言下達指令：
 
 ```
