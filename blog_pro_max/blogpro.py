@@ -37,8 +37,9 @@ else:
 DEV_ROOT = _PACKAGE_DIR.parent  # fallback for dev-mode resources
 
 SKILL_NAME = "blog-pro-max"
-VERSION = "1.0.38"
+VERSION = "1.0.39"
 VERSION_HISTORY = [
+    {"version": "1.0.39", "date": "2026-04-02", "changes": "如果 Gemini CLI 沒有實際寫入檔案，可以手動輸入指令來觸發儲存"},
     {"version": "1.0.38", "date": "2026-04-01", "changes": "優化存檔流程：12個區塊輸出完畢後自動儲存當前風格，再詢問是否另存其他3種"},
     {"version": "1.0.36", "date": "2026-04-01", "changes": "Max風格微調"},
     {"version": "1.0.35", "date": "2026-04-01", "changes": "增加 快速生成模式"},
@@ -377,6 +378,9 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
 
    儲存完成後，詢問使用者以下問題：
 
+   > ⚠️ 注意：若上方未出現實際儲存確認（或你確認 output/ 目錄中沒有新增檔案），
+   > 請手動輸入：`save to .md and .html` 以觸發儲存。
+   >
    > 「是否要另外生成其他 3 種風格？（SEO、Max、FB、LINE 各一份 .md + .html）
    > 輸入 y 繼續，或直接按 Enter 跳過。」
 
@@ -864,6 +868,9 @@ A minimal icon illustration of ..., clean lines, white background --ar 1:1
 
    儲存完成後，詢問使用者以下問題：
 
+   > ⚠️ 注意：若上方未出現實際儲存確認（或你確認 output/ 目錄中沒有新增檔案），
+   > 請手動輸入：`save to .md and .html` 以觸發儲存。
+   >
    > 「是否要另外生成其他 3 種風格？（SEO、Max、FB、LINE 各一份 .md + .html）
    > 輸入 y 繼續，或直接按 Enter 跳過。」
 
