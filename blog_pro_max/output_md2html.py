@@ -1,5 +1,6 @@
 import argparse
 import re
+from pathlib import Path
 
 import markdown
 
@@ -21,28 +22,11 @@ def preprocess_markdown(text):
 
     return text
 
-def convert_file(input_path, output_path):
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            raw_content = f.read()
-
-        # 執行前置格式清理
-        clean_content = preprocess_markdown(raw_content)
-
-        # 轉換為 HTML，加入 extra 擴充以支援表格與任務清單
-        html_output = markdown.markdown(clean_content, extensions=['extra', 'fenced_code'])
-
-        # 封裝成完整的 HTML 結構，方便直接預覽
-        full_html = f"""<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <title>Converted Markdown</title>
-    <style>
-        body {{ font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 1024px; margin: auto; }}
-        pre {{ position: relative; background: #e4e4e4; padding: 25px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; }}
-        code {{ font-family: monospace; }}
-        .copy-btn {{
+_HTML_STYLES = """
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 1024px; margin: auto; }
+        pre { position: relative; background: #e4e4e4; padding: 25px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; }
+        code { font-family: monospace; }
+        .copy-btn {
             position: absolute;
             top: 5px;
             right: 5px;
@@ -55,46 +39,110 @@ def convert_file(input_path, output_path):
             font-size: 12px;
             opacity: 0.5;
             transition: opacity 0.2s;
-        }}
-        .copy-btn:hover {{ opacity: 1; }}
-    </style>
-</head>
-<body>
-{html_output}
-<script>
-    document.querySelectorAll('pre').forEach(pre => {{
+        }
+        .copy-btn:hover { opacity: 1; }
+        .analysis-section {
+            margin-top: 48px;
+            padding: 24px 28px;
+            background: #f8f8f8;
+            border-left: 4px solid #888;
+            border-radius: 6px;
+        }
+        .analysis-title {
+            font-size: 1.4em;
+            color: #444;
+            margin-bottom: 16px;
+        }
+        .section-divider {
+            border: none;
+            border-top: 2px dashed #ccc;
+            margin: 40px 0 8px;
+        }
+"""
+
+_COPY_SCRIPT = """
+    document.querySelectorAll('pre').forEach(pre => {
         const btn = document.createElement('button');
         btn.className = 'copy-btn';
         btn.innerText = 'Copy';
-        btn.addEventListener('click', () => {{
+        btn.addEventListener('click', () => {
             const code = pre.innerText.replace('Copy', '').trim();
-            navigator.clipboard.writeText(code).then(() => {{
+            navigator.clipboard.writeText(code).then(() => {
                 btn.innerText = 'Copied!';
                 setTimeout(() => btn.innerText = 'Copy', 2000);
-            }});
-        }});
+            });
+        });
         pre.appendChild(btn);
-    }});
+    });
+"""
+
+
+def _to_html(md_text: str) -> str:
+    return markdown.markdown(preprocess_markdown(md_text), extensions=['extra', 'fenced_code'])
+
+
+def _wrap_html(title: str, body: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>{title}</title>
+    <style>{_HTML_STYLES}
+    </style>
+</head>
+<body>
+{body}
+<script>{_COPY_SCRIPT}
 </script>
 </body>
 </html>"""
 
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(full_html)
 
+def convert_file(input_path, output_path):
+    try:
+        raw_content = Path(input_path).read_text(encoding='utf-8')
+        html_output = _to_html(raw_content)
+        full_html = _wrap_html("Converted Markdown", html_output)
+        Path(output_path).write_text(full_html, encoding='utf-8')
         print(f"轉換成功：{output_path}")
-
     except FileNotFoundError:
         print(f"錯誤：找不到檔案 {input_path}")
     except Exception as e:
         print(f"處理過程中發生錯誤：{e}")
 
+
+def convert_with_analysis(article_path, analysis_path, output_path):
+    """Merge article .md + analysis .md into one HTML file for easy reading."""
+    try:
+        article_html = _to_html(Path(article_path).read_text(encoding='utf-8'))
+        analysis_html = _to_html(Path(analysis_path).read_text(encoding='utf-8'))
+
+        body = f"""<div id="article">
+{article_html}
+</div>
+<hr class="section-divider">
+<div id="analysis" class="analysis-section">
+<h2 class="analysis-title">📊 全文分析報告</h2>
+{analysis_html}
+</div>"""
+
+        title = Path(article_path).stem
+        full_html = _wrap_html(title, body)
+        Path(output_path).write_text(full_html, encoding='utf-8')
+        print(f"轉換成功（文章＋分析）：{output_path}")
+    except FileNotFoundError as e:
+        print(f"錯誤：找不到檔案 {e.filename}")
+    except Exception as e:
+        print(f"處理過程中發生錯誤：{e}")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='強化的 Markdown 轉 HTML 工具')
-
-    parser.add_argument('input', help='輸入的 .md 檔案路記')
+    parser.add_argument('input', help='輸入的 .md 檔案路徑')
     parser.add_argument('output', help='輸出的 .html 檔案路徑')
-
+    parser.add_argument('--analysis', default=None, help='分析 .md 檔案路徑（選填）；提供時與文章合併輸出')
     args = parser.parse_args()
 
-    convert_file(args.input, args.output)
+    if args.analysis:
+        convert_with_analysis(args.input, args.analysis, args.output)
+    else:
+        convert_file(args.input, args.output)

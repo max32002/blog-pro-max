@@ -21,7 +21,7 @@
 - **問題專家**：針對每個段落提出 3-5 個讀者可能浮現的疑問，幫助作者發現論述缺口，也可作為 FAQ 靈感。
 - **迷因專家**：針對每個段落提出迷因、梗圖與幽默元素關鍵字，讓嚴肅內容更輕鬆有趣、容易分享。
 - **AI Skill 注入**：一鍵將 Prompt 與工具鏈注入到 Claude Code, Cursor, GitHub Copilot 等 18 種平台。
-- **自動格式轉換**：內建 Markdown 轉 HTML 引擎，支援代碼高亮與 SEO 優化排版。
+- **自動格式轉換**：內建 Markdown 轉 HTML 引擎，支援代碼高亮與 SEO 優化排版；文章（`keyword.md`）與分析（`keyword_analysis.md`）自動合併為單一 `.html`，一頁閱讀全部內容。
 - **會話管理**：透過 `quick_generate.py` 自動保存生成記錄與元數據，支援隨時恢復編輯。
 
 ---
@@ -187,29 +187,32 @@ blogpro init --ai all --global
 
 | AI 類型 | 範例平台 | 輸出方式 |
 |---------|----------|----------|
-| **可執行腳本** | Claude Code, Cursor, Windsurf | 執行 Python 腳本，自動產出 `.md` + `.html` 檔案 |
-| **純 LLM 生成** | Gemini CLI, 一般聊天模式 | 直接生成文字輸出，詢問是否存檔為 `.md` |
+| **可執行腳本** | Claude Code, Cursor, Windsurf | 執行 Python 腳本，自動產出 `.md` + `_analysis.md` + `.html` 檔案 |
+| **純 LLM 生成** | Gemini CLI, 一般聊天模式 | 直接生成，自動執行全部分析並存檔 |
 
 > 💾 **如果 AI 沒有自動觸發存檔，請手動輸入：**
 > ```
-> save .md and .html
+> save article and analysis
 > ```
-> AI 會將文章存成 `output/關鍵字.md` 與 `output/關鍵字.html`。
+> AI 會將文章存成 `output/關鍵字.md`、分析存成 `output/關鍵字_analysis.md`，並合併輸出 `output/關鍵字.html`。
 
-兩種模式都會完整輸出所有 12 個區塊：
-- 文章本文（依選定模板格式）
-- `## 🔬 邏輯與事實專家審查報告`
-- `## 📐 深度與結構專家審查報告`
-- `## 👁️ 讀者視角專家審查報告`
-- `## 📰 時事趨勢分析報告`
-- `## 📝 推薦標題選項`（4 個標題 + WordPress permalink）
-- `## 🎨 推薦封面提示詞`（3 組 AI 繪圖 prompt）
-- `## 🌀 發散專家建議`
-- `## ❓ 問題專家建議`
-- `## 😂 迷因專家建議`
-- `## 💬 插話專家建議`
-- `## 🖼️ 插畫專家建議`
-- `## 🔴 唱反調專家報告`
+文章生成後，所有 12 項分析**一次自動執行完畢**，分別儲存為：
+
+- `output/關鍵字.md` — 文章本文（乾淨，僅文章）
+- `output/關鍵字_analysis.md` — 所有分析報告（合併為一份）：
+  - `## 🔬 邏輯與事實專家審查報告`
+  - `## 📐 深度與結構專家審查報告`
+  - `## 👁️ 讀者視角專家審查報告`
+  - `## 📰 時事趨勢分析報告`
+  - `## 📝 推薦標題選項`（4 個標題 + WordPress permalink）
+  - `## 🎨 推薦封面提示詞`（3 組 AI 繪圖 prompt）
+  - `## 🌀 發散專家建議`
+  - `## ❓ 問題專家建議`
+  - `## 😂 迷因專家建議`
+  - `## 💬 插話專家建議`
+  - `## 🖼️ 插畫專家建議`
+  - `## 🔴 唱反調專家報告`
+- `output/關鍵字.html` — 合併 `.md` + `_analysis.md`，一頁瀏覽全部內容
 
 ### Workflow Mode（斜線命令）
 
@@ -270,7 +273,7 @@ blogpro init --ai all --global
 不透過 AI Assistant，直接在終端機執行：
 
 ```bash
-# 生成文章
+# 生成文章（自動產出 keyword.md + keyword_analysis.md + keyword.html）
 python -m blog_pro_max.content_research --keyword "Python 基礎教學" --template blog-skill-content
 
 # 關鍵字太長？從檔案讀取（兩種方式皆可）
@@ -282,6 +285,9 @@ python -m blog_pro_max.content_research --keyword "Python 基礎教學" --dry-ru
 
 # 檢查現有 Markdown 檔案風格
 python -m blog_pro_max.content_research --keyword "Python" --check-only output/my-article.md
+
+# 手動合併文章與分析為 HTML
+python -m blog_pro_max.output_md2html output/my-article.md output/my-article.html --analysis output/my-article_analysis.md
 ```
 
 ### 快速生成模式（個人版）
@@ -335,14 +341,20 @@ python quick_generate.py --resume last
 
 ## 生成 Pipeline
 
-文章生成時會自動執行完整 pipeline（全部 12 個區塊皆自動輸出）：
+文章生成時會自動執行完整 pipeline，一次輸出**三個檔案**：
 
 ```
-文章生成 → 風格檢查 → 三維度審稿(邏輯/結構/讀者) → 時事趨勢分析 → 標題建議(4個+permalink) → 封面提示詞(3組) → 發散專家 → 問題專家 → 迷因專家 → 插話專家 → 插畫專家 → 唱反調專家 → MD→HTML
+文章生成 → 風格檢查 → 全部分析同時執行（三維度審稿/時事趨勢/標題/封面/發散/問題/迷因/插話/插畫/唱反調）
+    ↓                       ↓
+output/關鍵字.md        output/關鍵字_analysis.md
+（僅文章本文）           （所有分析報告，合併為一份）
+    └──────────────────────┘
+                ↓
+        output/關鍵字.html
+    （文章＋分析合併，一頁完整閱讀）
 ```
 
-每個步驟的失敗不會阻擋後續步驟。最終輸出的 `.md` 和 `.html` 包含：
-- 文章本文
+每個分析步驟的失敗不會阻擋後續步驟。`_analysis.md` 包含：
 - 三維度審稿報告（含問題點、修改建議、修改前後對比）
 - 時事趨勢報告（趨勢關聯、切入角度、關鍵字/Hashtag、改寫示範）
 - 推薦標題選項（含英文 WordPress permalink）
@@ -504,11 +516,11 @@ blogpro versions
 
 ```
 📦 blog-pro-max
-  目前版本：v1.0.34
+  目前版本：v1.0.42
 
 🔌 本地已安裝平台：
-  ✅ claude    v1.0.34  .claude/skills/blog-pro-max/
-  ✅ copilot   v1.0.34  .github/skills/blog-pro-max/
+  ✅ claude    v1.0.42  .claude/skills/blog-pro-max/
+  ✅ copilot   v1.0.42  .github/skills/blog-pro-max/
 ```
 
 ---

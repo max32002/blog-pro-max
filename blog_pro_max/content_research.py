@@ -35,7 +35,7 @@ try:
         review_trend,
     )
     from blog_pro_max.core import TEMPLATES, ensure_environment, list_templates, scan_project_status
-    from blog_pro_max.output_md2html import convert_file as md2html
+    from blog_pro_max.output_md2html import convert_file as md2html, convert_with_analysis as md2html_with_analysis
     from blog_pro_max.style_checker import check_content, check_file
 except ImportError:
     RESOURCE_ROOT = Path(__file__).resolve().parent.parent
@@ -56,7 +56,7 @@ except ImportError:
         review_trend,
     )
     from core import TEMPLATES, ensure_environment, list_templates, scan_project_status
-    from output_md2html import convert_file as md2html
+    from output_md2html import convert_file as md2html, convert_with_analysis as md2html_with_analysis
     from quick_stream import QuickStreamingGenerator
     from style_checker import check_content, check_file
 
@@ -233,6 +233,10 @@ def main():
     print(f"✅ 文章已儲存至：{output_path}")
     print()
 
+    # Analysis file (separate from article)
+    analysis_path = str(output_file.with_name(output_file.stem + "_analysis.md"))
+    analysis_content = ""
+
 
     # Style check
     print("🔍 正在執行風格檢查...")
@@ -288,9 +292,8 @@ def main():
             print(f"   ⚠️  {name}分析失敗（不影響文章）：{e}")
 
     if all_review_blocks:
-        current_content = output_file.read_text(encoding="utf-8")
-        output_file.write_text(current_content + all_review_blocks, encoding="utf-8")
-        print(f"\n   ✅ 審稿報告已附加到 {output_path}")
+        analysis_content += all_review_blocks
+        print(f"\n   ✅ 審稿報告已生成")
 
     # ── 時事趨勢專家 ──────────────────────────────
     print()
@@ -320,9 +323,8 @@ def main():
                 if trend.get(key):
                     trend_block += f"### {emoji_title}\n\n{trend[key]}\n\n"
 
-            current_content = output_file.read_text(encoding="utf-8")
-            output_file.write_text(current_content + trend_block, encoding="utf-8")
-            print(f"   ✅ 時事趨勢報告已附加到 {output_path}")
+            analysis_content += trend_block
+            print(f"   ✅ 時事趨勢報告已生成")
     except Exception as e:
         print(f"   ⚠️  時事趨勢分析失敗（不影響文章）：{e}")
 
@@ -352,10 +354,8 @@ def main():
                 slug = t.get('slug', '')
                 title_block += f"| {i} | {t['title']} | `/{slug}` |\n"
 
-            # Re-read and append (in case style check modified it)
-            current_content = output_file.read_text(encoding="utf-8")
-            output_file.write_text(current_content + title_block, encoding="utf-8")
-            print(f"   ✅ 標題建議已附加到 {output_path}")
+            analysis_content += title_block
+            print(f"   ✅ 標題建議已生成")
     except Exception as e:
         print(f"   ⚠️  標題生成失敗（不影響文章）：{e}")
 
@@ -382,9 +382,8 @@ def main():
                 if cp['description']:
                     cover_block += f"*{cp['description']}*\n\n"
 
-            current_content = output_file.read_text(encoding="utf-8")
-            output_file.write_text(current_content + cover_block, encoding="utf-8")
-            print(f"   ✅ 封面提示詞已附加到 {output_path}")
+            analysis_content += cover_block
+            print(f"   ✅ 封面提示詞已生成")
     except Exception as e:
         print(f"   ⚠️  封面提示詞生成失敗（不影響文章）：{e}")
 
@@ -422,16 +421,24 @@ def main():
             print(f"{emoji} 正在執行{name}分析...")
             block, err = future.result()
             if block:
-                current_content = output_file.read_text(encoding="utf-8")
-                output_file.write_text(current_content + block, encoding="utf-8")
-                print(f"   ✅ {name}建議已附加到 {output_path}")
+                analysis_content += block
+                print(f"   ✅ {name}建議已生成")
             elif err:
                 print(f"   ⚠️  {name}分析失敗（不影響文章）：{err}")
 
-    # Convert to HTML
+    # Save all analysis to separate file
+    if analysis_content:
+        analysis_file = Path(analysis_path)
+        analysis_file.write_text(analysis_content, encoding="utf-8")
+        print(f"\n✅ 分析報告已儲存至：{analysis_path}")
+
+    # Convert to HTML (merged article + analysis)
     html_path = str(Path(output_path).with_suffix(".html"))
     print("\n📄 正在轉換 HTML...")
-    md2html(output_path, html_path)
+    if analysis_content:
+        md2html_with_analysis(output_path, analysis_path, html_path)
+    else:
+        md2html(output_path, html_path)
     print(f"✅ HTML 已儲存至：{html_path}")
 
     if report.passed:

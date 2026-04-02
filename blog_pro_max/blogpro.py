@@ -37,9 +37,9 @@ else:
 DEV_ROOT = _PACKAGE_DIR.parent  # fallback for dev-mode resources
 
 SKILL_NAME = "blog-pro-max"
-VERSION = "1.0.39"
+VERSION = "1.0.42"
 VERSION_HISTORY = [
-    {"version": "1.0.39", "date": "2026-04-02", "changes": "如果 Gemini CLI 沒有實際寫入檔案，可以手動輸入指令來觸發儲存"},
+    {"version": "1.0.42", "date": "2026-04-02", "changes": "分析流程重構：全部分析一次執行完畢，文章本文存 keyword.md，所有分析存 keyword_analysis.md；HTML 輸出自動合併文章＋分析為單一 .html，方便閱讀"},
     {"version": "1.0.38", "date": "2026-04-01", "changes": "優化存檔流程：12個區塊輸出完畢後自動儲存當前風格，再詢問是否另存其他3種"},
     {"version": "1.0.36", "date": "2026-04-01", "changes": "Max風格微調"},
     {"version": "1.0.35", "date": "2026-04-01", "changes": "增加 快速生成模式"},
@@ -334,63 +334,47 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
    - 風格（未指定 → 預設 `blog-skill-content` SEO 標準模板）
 3. 若未明確指定關鍵字，從參考資料中**自動推斷核心主題**作為關鍵字，推斷後向使用者確認：
    「推斷主題為「[推斷的主題]」，若需更換請直接輸入正確關鍵字，或輸入「確認」繼續。」
-4. 以參考資料為內容基礎，依照選定模板的格式與風格要求生成一篇完整文章
-5. 文章生成後，依序逐一完整輸出以下全部 12 個區塊（**不得省略任何一個，不得在中途停止**）：
+4. 以參考資料為內容基礎，依照選定模板的格式與風格要求，**專注生成一篇完整高品質文章**（此步驟只寫文章，不做任何分析）
+5. 文章生成後，**立即自動執行全部分析並儲存**（不需詢問）：
 
-   **⚠️ 警告：必須完整輸出以下全部 12 個區塊。輸出三維度審稿後不代表完成，必須繼續輸出第 4-12 項。**
+   **自動執行所有分析：** 全科檢查（邏輯/結構/讀者）、標題建議、封面提示詞、時事趨勢、發散思考、唱反調、插話建議、段落插畫、提出問題、迷因建議
 
-   - **第 1 項（必須輸出）：** `## 🔬 邏輯與事實專家審查報告`
-   - **第 2 項（必須輸出）：** `## 📐 深度與結構專家審查報告`
-   - **第 3 項（必須輸出）：** `## 👁️ 讀者視角專家審查報告`
-   - **第 4 項（必須輸出，不得省略）：** `## 📰 時事趨勢分析報告`（含趨勢關聯、切入角度、關鍵字標籤、改寫示範）
-   - **第 5 項（必須輸出，不得省略）：** `## 📝 推薦標題選項`（含表格與英文 WordPress permalink）
-   - **第 6 項（必須輸出，不得省略）：** `## 🎨 推薦封面提示詞`（含 3 組英文 prompt：寫實攝影風、插畫風、極簡設計風）
-   - **第 7 項（必須輸出，不得省略）：** `## 🌀 發散專家建議`（針對每個 H2 段落提供 3 個延伸方向與後續文章題目）
-   - **第 8 項（必須輸出，不得省略）：** `## ❓ 問題專家建議`（針對每個 H2 段落提出 3-5 個讀者可能浮現的疑問）
-   - **第 9 項（必須輸出，不得省略）：** `## 😂 迷因專家建議`（針對每個 H2 段落提出迷因關鍵字、梗圖場景、輕鬆開場句）
-   - **第 10 項（必須輸出，不得省略）：** `## 💬 插話專家建議`（針對每個 H2 段落提供一個具體舉例說明，附建議插入位置）
-   - **第 11 項（必須輸出，不得省略）：** `## 🖼️ 插畫專家建議`（針對每個 H2 段落產出 3 組風格 AI 圖片提示詞：寫實攝影風、插畫風、極簡圖示風）
-   - **第 12 項（必須輸出，不得省略）：** `## 🔴 唱反調專家報告`（針對每個 H2 段落提出反駁觀點、理由，並建議如何回應）
+   **儲存規則（三個檔案）：**
+   - `output/關鍵字.md`：**僅存文章本文**（路徑相對於使用者工作目錄）
+   - `output/關鍵字_analysis.md`：**所有分析結果**（合併為一份，包含標題建議、封面提示詞、三維度審稿、時事趨勢、段落級建議）
+   - `output/關鍵字.html`：**合併文章＋分析**，一頁瀏覽全部內容
 
-   **📋 若因 token 限制無法輸出全部 12 項，請依以下優先級處理：**
-   - 優先級 1（必須完成）：文章本文 + 第 1-3 項（三維度審稿）
-   - 優先級 2（盡力完成）：第 4-6 項（時事趨勢 / 標題 / 封面）
-   - 優先級 3（條件完成）：第 7-12 項（延伸 / 插話 / 插畫 / 反調）
-
-   未完成時，**必須在最後明確列出**：
+   **腳本執行方式（具備腳本能力時）：**
    ```
-   ⚠️ 以下區塊因 token 限制未能完成，請輸入「繼續」接續輸出：
-   - 第 N 項：[區塊名稱]
+   python {script_prefix}scripts/content_research.py --keyword "關鍵字" --audience "受眾" --template 模板名稱
    ```
+   腳本自動完成全部分析，並輸出上述三個檔案。
 
-6. 所有報告輸出完畢後，**立即自動儲存當前風格**（不需詢問），並輸出以下完成報告：
+   **LLM 直接執行方式（不具備腳本能力時）：**
+   - 依序執行所有分析，將全部結果合併後寫入 `output/關鍵字_analysis.md`
+   - 合併 `output/關鍵字.md` 與 `output/關鍵字_analysis.md` 的內容，輸出到 `output/關鍵字.html`
+     （HTML 結構：文章區塊 → 分隔線 → 分析區塊）
 
+   完成後輸出：
    ```
-   ✅ 輸出完成：12/12 個區塊
-   💾 已儲存：output/關鍵字.md + .html
+   ✅ 文章與分析已完成
+   📄 文章：output/關鍵字.md
+   📊 分析：output/關鍵字_analysis.md
+   🌐 合併 HTML：output/關鍵字.html
    ```
-
-   - 儲存 `output/關鍵字.md`（路徑相對於使用者工作目錄）
-   - **`.md` 檔案必須包含本次對話中輸出的完整內容**（文章本文 + 全部 12 個專家區塊），不得只存文章本文
-   - 同時儲存 `output/關鍵字.html`：
-     - 若 AI 具備執行腳本能力，執行 `python {script_prefix}scripts/output_md2html.py output/關鍵字.md output/關鍵字.html`
-     - 若 AI 不具備執行腳本能力，直接將 .md 內容轉換為 HTML 並寫入 `output/關鍵字.html`
-
-   儲存完成後，詢問使用者以下問題：
 
    > ⚠️ 注意：若上方未出現實際儲存確認（或你確認 output/ 目錄中沒有新增檔案），
-   > 請手動輸入：`save to .md and .html` 以觸發儲存。
+   > 請手動輸入：`save article and analysis` 以觸發儲存。
    >
-   > 「是否要另外生成其他 3 種風格？（SEO、Max、FB、LINE 各一份 .md + .html）
-   > 輸入 y 繼續，或直接按 Enter 跳過。」
+   > 或輸入 `y` 另外生成其他 3 種風格。
 
-7. 若使用者輸入 `y`：
-   - 依序以其他 3 個模板重新生成文章，各自附加標題建議與封面提示詞，儲存為：
-     - `output/關鍵字-seo.md` + `output/關鍵字-seo.html`（blog-skill-content）
-     - `output/關鍵字-max.md` + `output/關鍵字-max.html`（max-personal-style）
-     - `output/關鍵字-fb.md` + `output/關鍵字-fb.html`（fb-post-style）
-     - `output/關鍵字-line.md` + `output/關鍵字-line.html`（line-message-style）
-   - 已在第 6 步儲存的風格可跳過，避免重複
+6. 若使用者輸入 `y`：
+   - 依序以其他 3 個模板重新生成文章並執行全部分析，儲存為：
+     - `output/關鍵字-seo.md` + `output/關鍵字-seo_analysis.md` + `output/關鍵字-seo.html`（blog-skill-content）
+     - `output/關鍵字-max.md` + `output/關鍵字-max_analysis.md` + `output/關鍵字-max.html`（max-personal-style）
+     - `output/關鍵字-fb.md` + `output/關鍵字-fb_analysis.md` + `output/關鍵字-fb.html`（fb-post-style）
+     - `output/關鍵字-line.md` + `output/關鍵字-line_analysis.md` + `output/關鍵字-line.html`（line-message-style）
+   - 已在第 5 步儲存的風格可跳過，避免重複
    - 所有路徑均相對於使用者工作目錄
 
 ### 內部角色：部落格標題專家（blog-title-writer）
@@ -451,20 +435,13 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
 > 以下由「封面提示詞專家」自動產出，可直接貼到 Midjourney、DALL-E 或 Stable Diffusion 使用。
 
 ### 1. 寫實攝影風
-
-**Prompt:**
-
-```
-A professional photo of ... , soft natural lighting, shallow depth of field --ar 16:9
-```
-
-*適合專業、商務類文章的封面*
+**Prompt:** A professional photo of ... , soft natural lighting, shallow depth of field --ar 16:9
 
 ### 2. 插畫風
-...
+**Prompt:** A warm hand-drawn illustration of ..., soft colors, flat style --ar 16:9
 
 ### 3. 極簡設計風
-...
+**Prompt:** A minimal icon illustration of ..., clean lines, white background --ar 16:9
 ```
 
 ### 內部角色：邏輯與事實專家（logic-fact-checker）
@@ -623,29 +600,15 @@ A professional photo of ... , soft natural lighting, shallow depth of field --ar
 
 - **1. 寫實攝影風**
 
-**Prompt:**
-
-```
-A professional photo of ... , soft natural lighting, --ar 16:9
-```
+**Prompt:** A professional photo of ... , soft natural lighting, --ar 16:9
 
 - **2. 插畫風**
 
-**Prompt:**
-
-```
-A warm hand-drawn illustration of ..., soft colors, flat style --ar 16:9
-```
-
+**Prompt:** A warm hand-drawn illustration of ..., soft colors, flat style --ar 16:9
 
 - **3. 極簡圖示風**
 
-**Prompt:**
-
-```
-A minimal icon illustration of ..., clean lines, white background --ar 1:1
-```
-
+**Prompt:** A minimal icon illustration of ..., clean lines, white background --ar 16:9
 ```
 
 （每個 H2 段落各輸出一組，格式相同）
@@ -777,8 +740,8 @@ A minimal icon illustration of ..., clean lines, white background --ar 1:1
    python {script_prefix}scripts/content_research.py --keyword "關鍵字" --audience "受眾" --template 模板名稱
    ```
    > 腳本預設輸出到執行時的當前工作目錄下的 `output/`，因此請確認是在使用者的專案根目錄執行，而非 Skill 目錄。
-4. 腳本會自動完成：風格檢查 → 三維度審稿（邏輯/結構/讀者）→ 時事趨勢分析 → 標題建議 → 封面提示詞 → .html 轉換
-5. 回報結果與檔案位置（`./output/關鍵字.md` 與 `./output/關鍵字.html`，路徑相對於使用者工作目錄）
+4. 腳本會自動完成：風格檢查 → 全部分析（三維度審稿、時事趨勢、標題、封面、發散、唱反調、插話、插畫、問題、迷因）→ 儲存 `output/關鍵字.md`（文章）+ `output/關鍵字_analysis.md`（分析）→ 合併輸出 `output/關鍵字.html`
+5. 回報結果與檔案位置（路徑相對於使用者工作目錄）
 
 **當 AI 不具備執行腳本能力時（一般聊天模式等）：**
 
@@ -789,100 +752,41 @@ A minimal icon illustration of ..., clean lines, white background --ar 1:1
    2. 選定模板的風格指南（例：fb-post-style 的社群語氣規則）
    3. `writing-style.md` 全域規則（禁用詞、標題層級、標點等）
    - 模板風格與 writing-style.md 衝突時，以模板為準，但禁用詞規則永遠適用
-4. 依照下列順序，**逐一完整輸出所有 12 個區塊，不得省略任何一個，不得在中途停止**：
+4. **專注生成文章**：依照選定模板的格式與風格要求，生成一篇完整高品質文章（此步驟只寫文章，不做任何分析）
 
-   **⚠️ 警告：必須完整輸出以下全部 12 個區塊。輸出三維度審稿後不代表完成，必須繼續輸出第 4-12 項。**
+5. 文章生成後，**立即自動執行全部分析並儲存**（不需詢問）：
 
-   **第 1 項（必須輸出）：**
-   `## 🔬 邏輯與事實專家審查報告`
+   **自動執行所有分析：** 全科檢查（邏輯/結構/讀者）、標題建議、封面提示詞、時事趨勢、發散思考、唱反調、插話建議、段落插畫、提出問題、迷因建議
 
-   **第 2 項（必須輸出）：**
-   `## 📐 深度與結構專家審查報告`
+   **儲存規則（三個檔案）：**
+   - `output/關鍵字.md`：**僅存文章本文**（路徑相對於使用者工作目錄，不是 Skill 目錄）
+   - `output/關鍵字_analysis.md`：**所有分析結果**（合併為一份）
+   - `output/關鍵字.html`：**合併文章＋分析**，一頁瀏覽全部內容
+     - 若 AI 具備執行腳本能力，執行 `python {script_prefix}scripts/output_md2html.py output/關鍵字.md output/關鍵字.html --analysis output/關鍵字_analysis.md`
+     - 若 AI 不具備執行腳本能力，合併兩個 .md 的內容（文章區塊 → 分隔線 → 分析區塊）輸出為 HTML
 
-   **第 3 項（必須輸出）：**
-   `## 👁️ 讀者視角專家審查報告`
-
-   **第 4 項（必須輸出，不得省略）：**
-   `## 📰 時事趨勢分析報告`（含趨勢關聯、切入角度、關鍵字標籤、改寫示範）
-
-   **第 5 項（必須輸出，不得省略）：**
-   `## 📝 推薦標題選項`（含表格與英文 WordPress permalink）
-
-   **第 6 項（必須輸出，不得省略）：**
-   `## 🎨 推薦封面提示詞`（含 3 組英文 prompt：寫實攝影風、插畫風、極簡設計風）
-
-   **第 7 項（必須輸出，不得省略）：**
-   `## 🌀 發散專家建議`（針對每個 H2 段落提供 3 個延伸方向與後續文章題目）
-
-   **第 8 項（必須輸出，不得省略）：**
-   `## ❓ 問題專家建議`（針對每個 H2 段落提出 3-5 個讀者可能浮現的疑問）
-
-   **第 9 項（必須輸出，不得省略）：**
-   `## 😂 迷因專家建議`（針對每個 H2 段落提出迷因關鍵字、梗圖場景、輕鬆開場句）
-
-   **第 10 項（必須輸出，不得省略）：**
-   `## 💬 插話專家建議`（針對每個 H2 段落提供一個具體舉例說明，附建議插入位置）
-
-   **第 11 項（必須輸出，不得省略）：**
-   `## 🖼️ 插畫專家建議`（針對每個 H2 段落產出 3 組風格 AI 圖片提示詞：寫實攝影風、插畫風、極簡圖示風）
-
-   **第 12 項（必須輸出，不得省略）：**
-   `## 🔴 唱反調專家報告`（針對每個 H2 段落提出反駁觀點、理由，並建議如何回應）
-
-   **📋 若因 token 限制無法輸出全部 12 項，請依以下優先級處理：**
-   - 優先級 1（必須完成）：文章本文 + 第 1-3 項（三維度審稿）
-   - 優先級 2（盡力完成）：第 4-6 項（時事趨勢 / 標題 / 封面）
-   - 優先級 3（條件完成）：第 7-12 項（延伸 / 插話 / 插畫 / 反調）
-
-   未完成時，**必須在最後明確列出**：
+   完成後輸出：
    ```
-   ⚠️ 以下區塊因 token 限制未能完成，請輸入「繼續」接續輸出：
-   - 第 N 項：[區塊名稱]
+   ✅ 文章與分析已完成
+   📄 文章：output/關鍵字.md
+   📊 分析：output/關鍵字_analysis.md
+   🌐 合併 HTML：output/關鍵字.html
    ```
-
-5. 全部 12 個區塊輸出完畢後，**立即自動儲存當前風格**（不需詢問），並輸出以下完成報告：
-
-   ```
-   ✅ 輸出完成：12/12 個區塊
-   💾 已儲存：output/關鍵字.md + .html
-   ```
-
-   - 儲存 `output/關鍵字.md`（路徑相對於使用者工作目錄，不是 Skill 目錄）
-   - **`.md` 檔案必須包含本次對話中輸出的完整內容**，依序為：
-     1. 文章本文
-     2. `## 🔬 邏輯與事實專家審查報告`
-     3. `## 📐 深度與結構專家審查報告`
-     4. `## 👁️ 讀者視角專家審查報告`
-     5. `## 📰 時事趨勢分析報告`
-     6. `## 📝 推薦標題選項`
-     7. `## 🎨 推薦封面提示詞`
-     8. `## 🌀 發散專家建議`
-     9. `## ❓ 問題專家建議`
-     10. `## 😂 迷因專家建議`
-     11. `## 💬 插話專家建議`
-     12. `## 🖼️ 插畫專家建議`
-     13. `## 🔴 唱反調專家報告`
-   - 同時儲存 `output/關鍵字.html`：
-     - 若 AI 具備執行腳本能力，執行 `python {script_prefix}scripts/output_md2html.py output/關鍵字.md output/關鍵字.html`
-     - 若 AI 不具備執行腳本能力，直接將 .md 內容轉換為 HTML（以 `<h1>`, `<h2>`, `<p>`, `<ul>` 等基本 HTML 標籤組成）並寫入 `output/關鍵字.html`
-
-   儲存完成後，詢問使用者以下問題：
 
    > ⚠️ 注意：若上方未出現實際儲存確認（或你確認 output/ 目錄中沒有新增檔案），
-   > 請手動輸入：`save to .md and .html` 以觸發儲存。
+   > 請手動輸入：`save article and analysis` 以觸發儲存。
    >
-   > 「是否要另外生成其他 3 種風格？（SEO、Max、FB、LINE 各一份 .md + .html）
-   > 輸入 y 繼續，或直接按 Enter 跳過。」
+   > 或輸入 `y` 另外生成其他 3 種風格。
 
 6. 若使用者輸入 `y`：
-   - 依序以其他 3 個模板重新生成文章，各自附加標題建議與封面提示詞，儲存為：
-     - `output/關鍵字-seo.md` + `output/關鍵字-seo.html`（blog-skill-content）
-     - `output/關鍵字-max.md` + `output/關鍵字-max.html`（max-personal-style）
-     - `output/關鍵字-fb.md` + `output/關鍵字-fb.html`（fb-post-style）
-     - `output/關鍵字-line.md` + `output/關鍵字-line.html`（line-message-style）
+   - 依序以其他 3 個模板重新生成文章並執行全部分析，儲存為：
+     - `output/關鍵字-seo.md` + `output/關鍵字-seo_analysis.md` + `output/關鍵字-seo.html`（blog-skill-content）
+     - `output/關鍵字-max.md` + `output/關鍵字-max_analysis.md` + `output/關鍵字-max.html`（max-personal-style）
+     - `output/關鍵字-fb.md` + `output/關鍵字-fb_analysis.md` + `output/關鍵字-fb.html`（fb-post-style）
+     - `output/關鍵字-line.md` + `output/關鍵字-line_analysis.md` + `output/關鍵字-line.html`（line-message-style）
    - 已在第 5 步儲存的風格可跳過，避免重複
    - 所有路徑均相對於使用者工作目錄
-   - .html 的產生方式同第 5 步（腳本優先，不能執行腳本時直接轉換）
+   - .html 的產生方式同第 5 步（腳本優先，不能執行腳本時直接合併）
 
 ### Script Mode（直接執行）
 
@@ -897,6 +801,7 @@ A minimal icon illustration of ..., clean lines, white background --ar 1:1
 | 查看專案狀態 | `python {script_prefix}scripts/core.py status` |
 | 列出可用模板 | `python {script_prefix}scripts/core.py templates` |
 | 轉換 MD→HTML | `python {script_prefix}scripts/output_md2html.py input.md output.html` |
+| 轉換含分析的 MD→HTML | `python {script_prefix}scripts/output_md2html.py input.md output.html --analysis input_analysis.md` |
 
 ## 前置需求
 
