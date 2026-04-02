@@ -35,7 +35,8 @@ try:
         review_trend,
     )
     from blog_pro_max.core import TEMPLATES, ensure_environment, list_templates, scan_project_status
-    from blog_pro_max.output_md2html import convert_file as md2html, convert_with_analysis as md2html_with_analysis
+    from blog_pro_max.output_md2html import convert_file as md2html
+    from blog_pro_max.output_md2html import convert_with_analysis as md2html_with_analysis
     from blog_pro_max.style_checker import check_content, check_file
 except ImportError:
     RESOURCE_ROOT = Path(__file__).resolve().parent.parent
@@ -56,7 +57,8 @@ except ImportError:
         review_trend,
     )
     from core import TEMPLATES, ensure_environment, list_templates, scan_project_status
-    from output_md2html import convert_file as md2html, convert_with_analysis as md2html_with_analysis
+    from output_md2html import convert_file as md2html
+    from output_md2html import convert_with_analysis as md2html_with_analysis
     from quick_stream import QuickStreamingGenerator
     from style_checker import check_content, check_file
 
@@ -293,7 +295,7 @@ def main():
 
     if all_review_blocks:
         analysis_content += all_review_blocks
-        print(f"\n   ✅ 審稿報告已生成")
+        print("\n   ✅ 審稿報告已生成")
 
     # ── 時事趨勢專家 ──────────────────────────────
     print()
@@ -324,7 +326,7 @@ def main():
                     trend_block += f"### {emoji_title}\n\n{trend[key]}\n\n"
 
             analysis_content += trend_block
-            print(f"   ✅ 時事趨勢報告已生成")
+            print("   ✅ 時事趨勢報告已生成")
     except Exception as e:
         print(f"   ⚠️  時事趨勢分析失敗（不影響文章）：{e}")
 
@@ -355,7 +357,7 @@ def main():
                 title_block += f"| {i} | {t['title']} | `/{slug}` |\n"
 
             analysis_content += title_block
-            print(f"   ✅ 標題建議已生成")
+            print("   ✅ 標題建議已生成")
     except Exception as e:
         print(f"   ⚠️  標題生成失敗（不影響文章）：{e}")
 
@@ -383,7 +385,7 @@ def main():
                     cover_block += f"*{cp['description']}*\n\n"
 
             analysis_content += cover_block
-            print(f"   ✅ 封面提示詞已生成")
+            print("   ✅ 封面提示詞已生成")
     except Exception as e:
         print(f"   ⚠️  封面提示詞生成失敗（不影響文章）：{e}")
 
