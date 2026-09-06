@@ -187,20 +187,11 @@ blogpro init --ai all --global
 
 #### Skill Mode 輸出行為
 
-依 AI 平台能力分兩種模式：
+所有支援 Skill 的 AI Assistant 皆採用**單一統一的 LLM 流程**生成與存檔：
 
-| AI 類型 | 範例平台 | 輸出方式 |
-|---------|----------|----------|
-| **可執行腳本** | Claude Code, Cursor, Windsurf, Antigravity (agy CLI), Pi Agent | 執行 Python 腳本，自動產出 `.md` + `_analysis.md` + `.html` 檔案 |
-| **純 LLM 生成** | 一般聊天模式 | 直接生成，自動執行全部分析並存檔 |
-
-> 💾 **如果 AI 沒有自動觸發存檔，請手動輸入：**
-> ```
-> save article and analysis
-> ```
-> AI 會將文章存成 `output/關鍵字.md`、分析存成 `output/關鍵字_analysis.md`，並合併輸出 `output/關鍵字.html`。
-
-文章生成後，所有 12 項分析**一次自動執行完畢**，分別儲存為：
+1. **生成文章**：LLM 依據選定模板與風格指南，專注生成完整的高品質文章。
+2. **多維度分析**：依序在記憶體中累積完成 12 項分析審查（三維度審稿、時事趨勢、標題、封面、延伸互動建議等）。
+3. **一次性存檔**：所有內容生成完畢後，AI 會呼叫寫檔工具一次性存檔至工作目錄的 `output/`：
 
 - `output/關鍵字.md` — 文章本文（乾淨，僅文章）
 - `output/關鍵字_analysis.md` — 所有分析報告（合併為一份）：
@@ -217,6 +208,12 @@ blogpro init --ai all --global
   - `## 🖼️ 插畫專家建議`
   - `## 🔴 唱反調專家報告`
 - `output/關鍵字.html` — 合併 `.md` + `_analysis.md`，一頁瀏覽全部內容
+
+> 💾 **如果 AI 沒有自動觸發存檔，請手動輸入：**
+> ```
+> save article and analysis
+> ```
+> AI 會將文章存成 `output/關鍵字.md`、分析存成 `output/關鍵字_analysis.md`，並合併輸出 `output/關鍵字.html`。
 
 ### Workflow Mode（斜線命令）
 
@@ -250,13 +247,13 @@ blogpro init --ai all --global
 
 | 語法 | 對應參數 | 範例 |
 |------|----------|------|
-| `[關鍵字]`（第一個方括號） | `--keyword` | `[遠端工作生產力]` |
-| `受眾[值]` | `--audience` | `受眾[科技業上班族]` |
-| `字數[N]` | `--word-count` | `字數[2000]` |
-| `作家Max風格` / `心情筆記` | `--template max-personal-style` | |
-| `SEO風格` / `專業風格` / `部落格風格` | `--template blog-skill-content` | |
-| `FB風格` / `Facebook風格` / `臉書風格` | `--template fb-post-style` | |
-| `LINE風格` / `LINE訊息` / `賴風格` | `--template line-message-style` | |
+| `[關鍵字]`（第一個方括號） | 核心關鍵字 | `[遠端工作生產力]` |
+| `受眾[值]` | 目標讀者 | `受眾[科技業上班族]` |
+| `字數[N]` | 目標字數 | `字數[2000]` |
+| `作家Max風格` / `心情筆記` | `max-personal-style` | |
+| `SEO風格` / `專業風格` / `部落格風格` | `blog-skill-content` | |
+| `FB風格` / `Facebook風格` / `臉書風格` | `fb-post-style` | |
+| `LINE風格` / `LINE訊息` / `賴風格` | `line-message-style` | |
 | `幫我取標題 <路徑>` | 呼叫標題專家 | `幫我取標題 output/article.md` |
 | `幫我生成封面 <路徑>` | 呼叫封面提示詞專家 | `幫我生成封面 output/article.md` |
 | `全科檢查 <路徑>` | 三位專家全面審查 | `全科檢查 output/article.md` |
@@ -270,9 +267,7 @@ blogpro init --ai all --global
 | `發散思考 <路徑>` | 發散專家：每段落延伸相關話題與聯想 | `發散思考 output/article.md` |
 | `提出問題 <路徑>` | 問題專家：每段落提出 3-5 個相關問題 | `提出問題 output/article.md` |
 | `迷因建議 <路徑>` | 迷因專家：每段落提出迷因/幽默關鍵字 | `迷因建議 output/article.md` |
-| `檢查風格 <路徑>` | 執行 style_checker | `檢查風格 output/article.md` |
-| `列出模板` | 列出可用模板 | |
-| `專案狀態` | 顯示專案狀態報告 | |
+| `檢查風格 <路徑>` | 執行風格檢查 | `檢查風格 output/article.md` |
 
 ### Script Mode（直接執行）
 
