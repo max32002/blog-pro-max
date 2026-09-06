@@ -138,12 +138,12 @@ python -m blog_pro_max.content_research --keyword "主題" --dry-run
 
 ---
 
-## 在 Gemini CLI 中使用
+## 在 Antigravity CLI (agy) 中使用
 
 ### 方式 A：互動模式
 
 ```bash
-gemini
+agy
 ```
 
 然後在互動模式中提示：
@@ -155,19 +155,19 @@ gemini
 ### 方式 B：直接執行
 
 ```bash
-gemini -p "請審查以下文章：[文章內容]"
+agy -p "請審查以下文章：[文章內容]"
 ```
 
 ---
 ```bash
 export BLOG_USER=admin
-gemini -p "批量審查 ./articles/ 目錄中的所有文章"
+agy -p "批量審查 ./articles/ 目錄中的所有文章"
 ```
 
 ### 方式 D：特定焦點審查
 ```bash
 export BLOG_USER=admin
-gemini "請讓 SEO優化師、內容檢查官、可讀性顧問這 3 位專家審查我的文章"
+agy "請讓 SEO優化師、內容檢查官、可讀性顧問這 3 位專家審查我的文章"
 
 # 貼入文章內容，CLI 會執行並行審查
 ```
@@ -210,7 +210,7 @@ gemini "請讓 SEO優化師、內容檢查官、可讀性顧問這 3 位專家�
 ### 方式 1：觀察輸出速度
 ```bash
 # 記錄開始時間
-time gemini -p "審查文章：[文章內容]"
+time agy -p "審查文章：[文章內容]"
 
 # 預期：< 1 分鐘完成 12 位專家審查
 # 如果 > 3 分鐘，可能是順序執行而非並行

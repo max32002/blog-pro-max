@@ -37,8 +37,10 @@ else:
 DEV_ROOT = _PACKAGE_DIR.parent  # fallback for dev-mode resources
 
 SKILL_NAME = "blog-pro-max"
-VERSION = "1.0.52"
+VERSION = "1.0.54"
 VERSION_HISTORY = [
+    {"version": "1.0.54", "date": "2026-09-06", "changes": "因應 Google 終止個人免費 Gemini CLI 並改推 Antigravity CLI，全面移除 Gemini CLI 並改用 agy CLI (--ai agy)"},
+    {"version": "1.0.53", "date": "2026-09-06", "changes": "支援 Pi Agent (--ai pi) 與 Antigravity CLI (--ai agy)；生成的 SKILL.md 強化對 progressive disclosure 與各 Agent 檔案寫入工具相容性"},
     {"version": "1.0.52", "date": "2026-04-12", "changes": "風格微調, 套用在手機上閱讀舒適"},
     {"version": "1.0.46", "date": "2026-04-02", "changes": "分析流程重構：全部分析一次執行完畢，文章本文存 keyword.md，所有分析存 keyword_analysis.md；HTML 輸出自動合併文章＋分析為單一 .html；修正 Gemini CLI Skill Mode 重複寫入 bug：LLM 模式改為全部分析完畢後一次性寫檔，禁止多次 write_file；新增腳本失敗停止指令，防止靜默回退 LLM 模式造成內容重疊"},
     {"version": "1.0.38", "date": "2026-04-01", "changes": "優化存檔流程：12個區塊輸出完畢後自動儲存當前風格，再詢問是否另存其他3種"},
@@ -111,6 +113,19 @@ PLATFORMS = {
         "sub": f"skills/{SKILL_NAME}",
         "filename": "SKILL.md",
     },
+    "agy": {
+        "display": "Antigravity CLI (agy)",
+        "root": ".agents",
+        "sub": f"skills/{SKILL_NAME}",
+        "filename": "SKILL.md",
+    },
+    "pi": {
+        "display": "Pi Agent",
+        "root": ".pi",
+        "sub": f"skills/{SKILL_NAME}",
+        "global_root": ".pi/agent",
+        "filename": "SKILL.md",
+    },
     "kiro": {
         "display": "Kiro",
         "root": ".kiro",
@@ -132,12 +147,6 @@ PLATFORMS = {
     "roocode": {
         "display": "Roo Code",
         "root": ".roo",
-        "sub": f"skills/{SKILL_NAME}",
-        "filename": "SKILL.md",
-    },
-    "gemini": {
-        "display": "Gemini CLI",
-        "root": ".gemini",
         "sub": f"skills/{SKILL_NAME}",
         "filename": "SKILL.md",
     },
@@ -225,6 +234,14 @@ def _build_frontmatter(platform_key):
             "Actions: generate, check, convert, plan, write, review, "
             "optimize SEO, create blog posts, analyze style."
         )
+    elif platform_key in ("antigravity", "agy", "pi"):
+        desc = (
+            "Blog Pro Max: 自動化 SEO 內容創作與部落格文章生成工具。"
+            "當使用者需要撰寫部落格文章、SEO 內容、個人風格隨筆、Facebook 貼文、LINE 訊息、"
+            "進行多維度文章審查（邏輯、深度、讀者視角、時事趨勢）、取得推薦標題、生成封面提示詞、"
+            "檢查寫作風格或將文章轉換為 HTML 時使用此技能。"
+            "支援自然語言對話、/blog-pro-max 及 /skill:blog-pro-max 指令。"
+        )
     return "\n".join([
         "---",
         f"name: {SKILL_NAME}",
@@ -261,9 +278,10 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
 
 ### Workflow Mode（Slash Command）
 
-支援平台：Kiro、GitHub Copilot、Roo Code、KiloCode
+支援平台：Kiro、GitHub Copilot、Roo Code、KiloCode、Pi Agent、Antigravity / agy CLI
 
 使用者輸入 `/blog-pro-max` 開頭的指令時，解析並執行對應的文章生成任務。
+在 Pi Agent 中亦支援 `/skill:blog-pro-max` 指令；在 Antigravity / agy CLI 中可直接以自然語言對話或輸入 `/blog-pro-max` 指令觸發。
 
 **指令格式：**
 
@@ -354,10 +372,10 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
    依序執行所有分析，將全部結果在記憶體中累積。
 
    **⚠️ 存檔規則（必須嚴格遵守，防止內容重複）：**
-   - `output/關鍵字.md`：**只呼叫 write_file 一次**，寫入文章本文，之後不再修改
-   - `output/關鍵字_analysis.md`：所有分析**全部完成後才呼叫 write_file 一次**，合併後一次寫入
-   - `output/關鍵字.html`：合併兩個 .md 的內容（文章區塊 → 分隔線 → 分析區塊），**只呼叫 write_file 一次**
-   - **禁止對同一個檔案呼叫多次 write_file**：每段分析後個別寫入是導致內容重複的主因
+   - `output/關鍵字.md`：**只呼叫檔案寫入工具一次**（例如 `write_to_file`、`write`、`write_file` 等），寫入文章本文，之後不再修改
+   - `output/關鍵字_analysis.md`：所有分析**全部完成後才呼叫檔案寫入工具一次**，合併後一次寫入
+   - `output/關鍵字.html`：合併兩個 .md 的內容（文章區塊 → 分隔線 → 分析區塊），**只呼叫檔案寫入工具一次**
+   - **禁止對同一個檔案呼叫多次檔案寫入工具**：每段分析後個別寫入是導致內容重複的主因
 
    完成後輸出：
    ```
@@ -728,11 +746,11 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
 收到 `/blog-pro-max` 指令後，依以下判斷執行：
 
 **⚠️ 輸出路徑規則（所有模式通用）：**
-- 所有產出的 .md 和 .html 檔案，必須儲存在**使用者的工作目錄**（即使用者執行 Gemini CLI 的目錄）下的 `output/` 資料夾
-- 絕對不能存到 Skill 安裝目錄（例如 `.gemini/skills/blog-pro-max/output/`）
-- 使用者的工作目錄可用環境變數 `$PWD` 或 `$(pwd)` 取得
+- 所有產出的 .md 和 .html 檔案，必須儲存在**使用者的工作目錄**（即使用者執行 AI Assistant / CLI 的目錄）下的 `output/` 資料夾
+- 絕對不能存到 Skill 安裝目錄（例如 `.agents/skills/blog-pro-max/output/` 或 `.pi/skills/blog-pro-max/output/`）
+- 使用者的工作目錄可用環境變數 `$PWD`、`$(pwd)` 或當前工作區目錄取得
 
-**當 AI 具備執行腳本能力時（Claude Code、Cursor、Gemini CLI 等）：**
+**當 AI 具備執行腳本能力時（Claude Code、Cursor、Antigravity / agy CLI、Pi Agent、Codex CLI 等）：**
 
 1. 解析使用者意圖，提取關鍵字、受眾、風格、字數
 2. 先確認使用者的工作目錄，並建立 `output/` 資料夾（若不存在）：
@@ -767,10 +785,10 @@ blog-pro-max 是一套自動化部落格內容生成工具，支援：
    依序執行：全科檢查（邏輯/結構/讀者）→ 標題建議 → 封面提示詞 → 時事趨勢 → 發散思考 → 唱反調 → 插話建議 → 段落插畫 → 提出問題 → 迷因建議
 
    **⚠️ 存檔規則（必須嚴格遵守，防止內容重複）：**
-   - `output/關鍵字.md`：文章全部完成後**只呼叫 write_file 一次**，寫入文章本文，之後**絕對不再修改此檔案**
-   - `output/關鍵字_analysis.md`：所有分析**全部完成後才呼叫 write_file 一次**，將全部分析合併後一次寫入（不要每段分析各自寫一次）
-   - `output/關鍵字.html`：合併兩個 .md 的內容（文章區塊 → 分隔線 → 分析區塊），**只呼叫 write_file 一次**
-   - **禁止對同一個檔案呼叫多次 write_file**：這是導致內容重複的主要原因
+   - `output/關鍵字.md`：文章全部完成後**只呼叫檔案寫入工具一次**（例如 `write_to_file`、`write`、`write_file` 等），寫入文章本文，之後**絕對不再修改此檔案**
+   - `output/關鍵字_analysis.md`：所有分析**全部完成後才呼叫檔案寫入工具一次**，將全部分析合併後一次寫入（不要每段分析各自寫一次）
+   - `output/關鍵字.html`：合併兩個 .md 的內容（文章區塊 → 分隔線 → 分析區塊），**只呼叫檔案寫入工具一次**
+   - **禁止對同一個檔案多次重複呼叫寫入工具**：這是導致內容重複的主要原因
 
    完成後輸出：
    ```
@@ -891,13 +909,14 @@ OPENAI_API_KEY=sk-your-key-here
 def install_for_platform(platform_key, target_root, global_install=False, offline=False):
     plat = PLATFORMS[platform_key]
     display = plat["display"]
-    skill_dir = target_root / plat["root"] / plat["sub"]
+    root_name = plat["global_root"] if (global_install and "global_root" in plat) else plat["root"]
+    skill_dir = target_root / root_name / plat["sub"]
     skill_file = skill_dir / plat["filename"]
 
     if global_install:
         prefix = str(skill_dir).replace("\\", "/") + "/"
     else:
-        prefix = plat["root"] + "/" + plat["sub"] + "/"
+        prefix = root_name + "/" + plat["sub"] + "/"
 
     print(f"  📦 {display}...")
 
@@ -987,7 +1006,14 @@ def cmd_init(args):
     print()
 
     if args.ai == "all":
-        targets = list(PLATFORMS.keys())
+        seen_paths = set()
+        targets = []
+        for key, plat in PLATFORMS.items():
+            root_name = plat["global_root"] if (args.global_install and "global_root" in plat) else plat["root"]
+            rel_path = f"{root_name}/{plat['sub']}"
+            if rel_path not in seen_paths:
+                seen_paths.add(rel_path)
+                targets.append(key)
     else:
         targets = [args.ai]
 
@@ -1011,11 +1037,18 @@ def cmd_init(args):
 def _find_installed_platforms(search_root):
     """掃描目錄，找出所有已安裝 blog-pro-max 的平台。"""
     found = []
+    seen_dirs = set()
     for key, plat in PLATFORMS.items():
-        skill_dir = search_root / plat["root"] / plat["sub"]
-        manifest = skill_dir / ".blogpro-manifest.json"
-        if manifest.is_file() or (skill_dir / plat["filename"]).is_file():
-            found.append((key, plat, skill_dir))
+        candidates = [search_root / plat["root"] / plat["sub"]]
+        if "global_root" in plat:
+            candidates.append(search_root / plat["global_root"] / plat["sub"])
+        for skill_dir in candidates:
+            if skill_dir in seen_dirs:
+                continue
+            manifest = skill_dir / ".blogpro-manifest.json"
+            if manifest.is_file() or (skill_dir / plat["filename"]).is_file():
+                seen_dirs.add(skill_dir)
+                found.append((key, plat, skill_dir))
     return found
 
 

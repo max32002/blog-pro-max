@@ -1,6 +1,6 @@
 # blog-pro-max
 
-自動化 SEO 內容創作與部落格文章生成工具。支援一鍵將寫作 Skill 注入到 18 種 AI 編輯器與 Assistant。
+自動化 SEO 內容創作與部落格文章生成工具。支援一鍵將寫作 Skill 注入到 19 種 AI 編輯器與 Assistant。
 
 ## 功能亮點
 
@@ -20,7 +20,7 @@
 - **發散專家**：針對每個段落運用想像力與獨創力，從一個概念延伸到相關話題與跨領域聯想，發現更多寫作方向。
 - **問題專家**：針對每個段落提出 3-5 個讀者可能浮現的疑問，幫助作者發現論述缺口，也可作為 FAQ 靈感。
 - **迷因專家**：針對每個段落提出迷因、梗圖與幽默元素關鍵字，讓嚴肅內容更輕鬆有趣、容易分享。
-- **AI Skill 注入**：一鍵將 Prompt 與工具鏈注入到 Claude Code, Cursor, GitHub Copilot 等 18 種平台。
+- **AI Skill 注入**：一鍵將 Prompt 與工具鏈注入到 Claude Code, Cursor, GitHub Copilot, Antigravity (agy CLI), Pi Agent 等 19 種平台。
 - **自動格式轉換**：內建 Markdown 轉 HTML 引擎，支援代碼高亮與 SEO 優化排版；文章（`keyword.md`）與分析（`keyword_analysis.md`）自動合併為單一 `.html`，一頁閱讀全部內容。
 - **會話管理**：透過 `quick_generate.py` 自動保存生成記錄與元數據，支援隨時恢復編輯。
 
@@ -104,10 +104,12 @@ blogpro init --ai all         # 注入到所有支援的平台
 | | CodeBuddy | `codebuddy` |
 | | OpenCode | `opencode` |
 | | Augment | `augment` |
-| **終端機 / CLI** | Gemini CLI | `gemini` |
+| **終端機 / CLI** | Antigravity CLI | `agy`（或 `antigravity`） |
+| | Pi Agent | `pi` |
 | | Codex CLI | `codex` |
 | | Warp | `warp` |
-| **新興 Agent** | Antigravity | `antigravity` |
+| **新興 Agent** | Antigravity | `antigravity`（或 `agy`） |
+| | Pi Agent | `pi` |
 | | Kiro | `kiro` |
 | | Qoder | `qoder` |
 | | Droid (Factory) | `droid` |
@@ -134,18 +136,21 @@ blogpro init --ai all --global
 
 ### Skill Mode（自動啟動）
 
-**支援平台：** Claude Code, Cursor, Windsurf, Antigravity, Codex CLI, Continue, Gemini CLI, OpenCode, Qoder, CodeBuddy, Droid (Factory), KiloCode, Warp, Augment
+**支援平台：** Claude Code, Cursor, Windsurf, Antigravity (agy CLI), Pi Agent, Codex CLI, Continue, OpenCode, Qoder, CodeBuddy, Droid (Factory), KiloCode, Warp, Augment
 
-> 💡 **CLI 用戶建議：啟用 YOLO Mode**
+> 💡 **CLI 用戶建議：啟用 YOLO Mode（自動確認）**
 > 
-> 使用終端機 CLI（如 Gemini CLI、Codex CLI）時，AI 在執行每個步驟前都可能停下來請求確認，這會打斷寫作流程。建議啟動時加上 **YOLO（自動確認）** 參數，讓 AI 不中斷地完成整個生成流程：
+> 使用終端機 CLI（如 Antigravity CLI、Codex CLI 等）時，AI 在執行每個步驟前都可能停下來請求權限或確認，這會打斷寫作流程。建議啟動時加上自動確認參數，讓 AI 不中斷地完成整個生成流程：
 > 
 > ```bash
-> # Gemini CLI：加上 -y 進入 YOLO mode
-> gemini -y
+> # Antigravity CLI (agy)：加上 --dangerously-skip-permissions 跳過權限確認
+> agy --dangerously-skip-permissions
 > 
 > # Codex CLI：加上 --full-auto 進入自動模式
 > codex --full-auto
+> 
+> # Pi Agent：直接啟動即可
+> pi
 > ```
 > 
 > 啟用後，AI 將自動完成所有步驟（搜尋、生成、存檔），無需逐步確認。
@@ -186,8 +191,8 @@ blogpro init --ai all --global
 
 | AI 類型 | 範例平台 | 輸出方式 |
 |---------|----------|----------|
-| **可執行腳本** | Claude Code, Cursor, Windsurf | 執行 Python 腳本，自動產出 `.md` + `_analysis.md` + `.html` 檔案 |
-| **純 LLM 生成** | Gemini CLI, 一般聊天模式 | 直接生成，自動執行全部分析並存檔 |
+| **可執行腳本** | Claude Code, Cursor, Windsurf, Antigravity (agy CLI), Pi Agent | 執行 Python 腳本，自動產出 `.md` + `_analysis.md` + `.html` 檔案 |
+| **純 LLM 生成** | 一般聊天模式 | 直接生成，自動執行全部分析並存檔 |
 
 > 💾 **如果 AI 沒有自動觸發存檔，請手動輸入：**
 > ```
@@ -215,7 +220,9 @@ blogpro init --ai all --global
 
 ### Workflow Mode（斜線命令）
 
-**支援平台：** Kiro, GitHub Copilot, Roo Code, KiloCode
+**支援平台：** Kiro, GitHub Copilot, Roo Code, KiloCode, Pi Agent, Antigravity (agy CLI)
+
+> 💡 **提示：** 在 Pi Agent 中支援 `/skill:blog-pro-max` 或 `/blog-pro-max`；在 Antigravity / agy CLI 中可直接自然語言對話或輸入 `/blog-pro-max`。
 
 使用斜線命令精確控制生成參數：
 

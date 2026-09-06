@@ -539,18 +539,18 @@ blogpro init --ai <平台> [--global] [--target <路徑>]
 | `claude` | Claude Code | `.claude/skills/blog-pro-max/` |
 | `cursor` | Cursor | `.cursor/skills/blog-pro-max/` |
 | `windsurf` | Windsurf | `.windsurf/skills/blog-pro-max/` |
-| `copilot` | GitHub Copilot | `.github/skills/blog-pro-max/` |
-| `antigravity` | Antigravity | `.antigravity/skills/blog-pro-max/` |
-| `kiro` | Kiro | `.kiro/skills/blog-pro-max/` |
+| `copilot` | GitHub Copilot | `.github/prompts/blog-pro-max/` |
+| `antigravity` / `agy` | Antigravity / agy CLI | `.agents/skills/blog-pro-max/` |
+| `pi` | Pi Agent | `.pi/skills/blog-pro-max/`（全域：`~/.pi/agent/skills/`） |
+| `kiro` | Kiro | `.kiro/steering/blog-pro-max/` |
 | `codex` | Codex CLI | `.codex/skills/blog-pro-max/` |
 | `qoder` | Qoder | `.qoder/skills/blog-pro-max/` |
-| `roo` | Roo Code | `.roo/skills/blog-pro-max/` |
-| `gemini` | Gemini CLI | `.gemini/skills/blog-pro-max/` |
+| `roocode` | Roo Code | `.roo/skills/blog-pro-max/` |
 | `trae` | Trae | `.trae/skills/blog-pro-max/` |
 | `opencode` | OpenCode | `.opencode/skills/blog-pro-max/` |
 | `continue` | Continue | `.continue/skills/blog-pro-max/` |
 | `codebuddy` | CodeBuddy | `.codebuddy/skills/blog-pro-max/` |
-| `droid` | Droid (Factory) | `.droid/skills/blog-pro-max/` |
+| `droid` | Droid (Factory) | `.factory/skills/blog-pro-max/` |
 | `kilocode` | KiloCode | `.kilocode/skills/blog-pro-max/` |
 | `warp` | Warp | `.warp/skills/blog-pro-max/` |
 | `augment` | Augment | `.augment/skills/blog-pro-max/` |
@@ -560,6 +560,8 @@ blogpro init --ai <平台> [--global] [--target <路徑>]
 ```bash
 # 安裝到單一平台（當前目錄）
 blogpro init --ai claude
+blogpro init --ai agy
+blogpro init --ai pi
 
 # 全域安裝（所有專案皆可使用）
 blogpro init --ai copilot --global
@@ -696,7 +698,7 @@ blogpro update
 
 ## Skill Mode 斜線命令參考
 
-安裝 Skill 後，在任何支援的 AI 平台（Claude、Cursor、Gemini 等）可使用以下斜線命令：
+安裝 Skill 後，在任何支援的 AI 平台（Claude、Cursor、Antigravity / agy 等）可使用以下斜線命令：
 
 ### 文章生成
 

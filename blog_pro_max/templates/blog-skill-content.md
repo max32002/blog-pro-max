@@ -27,10 +27,10 @@
 
 ```markdown
 ---
-- title: "{H1 標題}"
-- meta_description: "{Meta Description}"
-- keyword: "{keyword}"
-- date: "{date}"
+title: "{H1 標題}"
+meta_description: "{Meta Description}"
+keyword: "{keyword}"
+date: "{date}"
 ---
 
 # {H1 標題}

@@ -415,7 +415,7 @@ python -m blog_pro_max.content_research --keyword "Python" --output ~/Desktop/my
 
 ### Q：可以同時安裝多個平台嗎？
 
-可以。使用 `--ai all` 一次安裝所有 18 個平台：
+可以。使用 `--ai all` 一次安裝所有 19 個平台：
 
 ```bash
 blogpro init --ai all

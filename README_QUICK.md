@@ -256,17 +256,16 @@ python quick_generate.py --resume last
 
 ---
 
-## Gemini CLI 集成
+## Antigravity CLI (agy) 集成
 
-如果您安裝了 Gemini CLI，也可以這樣用：
+如果您安裝了 Antigravity CLI（agy），也可以這樣用：
 
 ```bash
-# 直接在 Gemini CLI 中使用
-gemini "使用 quick_generate.py 生成一篇 AI 的文章"
+# 直接在 Antigravity CLI 中使用
+agy "使用 quick_generate.py 生成一篇 AI 的文章"
 
-# 或者設定身份後使用
-export BLOG_USER=personal
-gemini -p "使用 quick_generate 生成文章"
+# 或者以列印模式生成文章
+agy -p "使用 quick_generate 生成文章"
 ```
 
 ---
