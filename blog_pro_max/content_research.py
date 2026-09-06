@@ -37,6 +37,7 @@ try:
     from blog_pro_max.core import TEMPLATES, ensure_environment, list_templates, scan_project_status
     from blog_pro_max.output_md2html import convert_file as md2html
     from blog_pro_max.output_md2html import convert_with_analysis as md2html_with_analysis
+    from blog_pro_max.quick_stream import QuickStreamingGenerator
     from blog_pro_max.style_checker import check_content, check_file
 except ImportError:
     RESOURCE_ROOT = Path(__file__).resolve().parent.parent
@@ -134,6 +135,10 @@ def main():
         help="顯示 prompt 但不呼叫 API",
     )
     parser.add_argument(
+        "--api-mode", action="store_true",
+        help="直接呼叫 OpenAI API 生成文章（預設為 LLM 模式，由 agent 生成）",
+    )
+    parser.add_argument(
         "--status", action="store_true",
         help="顯示專案狀態報告",
     )
@@ -183,9 +188,6 @@ def main():
     print(f"🔑 核心關鍵字：{keyword}")
     print(f"👥 目標讀者：{args.audience}")
     print(f"📏 目標字數：{args.word_count}")
-    print(f"🌐 語言：{args.language}")
-    print(f"🤖 模型：{args.model}")
-    print(f"🎨 模板：{template}")
     print(f"📄 輸出路徑：{output_path}")
     print()
 
@@ -205,15 +207,33 @@ def main():
         print(prompt)
         return
 
+    # LLM 模式（預設）：輸出 prompt，讓 agent 自行生成文章並寫入檔案
+    if not args.api_mode:
+        prompt, system_prompt = build_prompt(
+            keyword, args.audience, args.word_count, args.language, template
+        )
+        print("=" * 60)
+        print("📝 請依照以下指令生成文章，完成後將內容存入：")
+        print(f"   {output_path}")
+        print("=" * 60)
+        print()
+        print("[SYSTEM]")
+        print(system_prompt)
+        print()
+        print("[USER]")
+        print(prompt)
+        print()
+        print("=" * 60)
+        print("✅ Prompt 已輸出。請由 LLM 生成文章內容並寫入上述路徑。")
+        return
+
     # Generate article
     print("⏳ 正在生成文章...")
     try:
-        streamer = QuickStreamingGenerator()
+        streamer = QuickStreamingGenerator(model=args.model, temperature=0.7)
         article_chunks = []
         for chunk in streamer.generate(
             prompt=f"以 {keyword} 為核心寫一篇 {args.word_count} 字的文章給 {args.audience}",
-            model=args.model,
-            temperature=0.7
         ):
             print(chunk, end="", flush=True)
             article_chunks.append(chunk)
